@@ -116,7 +116,25 @@ importers:
         specifier: ^3.25.0
         version: 3.25.76
 
+  modules/quiz:
+    dependencies:
+      '@dinodigest/module-sdk':
+        specifier: workspace:*
+        version: link:../../packages/module-sdk
+      zod:
+        specifier: ^3.25.0
+        version: 3.25.76
+
   modules/summary:
+    dependencies:
+      '@dinodigest/module-sdk':
+        specifier: workspace:*
+        version: link:../../packages/module-sdk
+      zod:
+        specifier: ^3.25.0
+        version: 3.25.76
+
+  modules/vocab-flashcard:
     dependencies:
       '@dinodigest/module-sdk':
         specifier: workspace:*

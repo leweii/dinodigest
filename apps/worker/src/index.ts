@@ -8,6 +8,8 @@ import { DigestOrchestrator } from "./orchestrator.js";
 // Import modules
 import summaryModule from "@dinodigest/module-summary";
 import keyPointsModule from "@dinodigest/module-key-points";
+import vocabFlashcardModule from "@dinodigest/module-vocab-flashcard";
+import quizModule from "@dinodigest/module-quiz";
 
 const REDIS_URL = process.env.REDIS_URL ?? "redis://localhost:6379";
 const DATABASE_URL =
@@ -33,8 +35,8 @@ async function main() {
   const registry = new ModuleRegistry();
   registry.register(summaryModule);
   registry.register(keyPointsModule);
-  // Future: registry.register(vocabFlashcardModule);
-  // Future: registry.register(quizModule);
+  registry.register(vocabFlashcardModule);
+  registry.register(quizModule);
 
   // 4. Create orchestrator
   const orchestrator = new DigestOrchestrator(registry, llm, db);
