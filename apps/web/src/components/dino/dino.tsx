@@ -30,33 +30,30 @@ export function Dino({
         role="img"
         aria-label="乔治恐龙"
       >
-        {/* ===== TAIL — thick base merging with body, tapers to tip ===== */}
+        {/* ===== TAIL — single closed shape merging seamlessly into body ===== */}
         <g className={state === "happy" ? "animate-tail-wag" : ""}>
-          {/* Tail body — wide at base, curves left and tapers */}
+          {/* Tail fill — extends into body so the body ellipse covers the seam */}
           <path
-            d="M 55 145 Q 42 140, 32 135 Q 20 128, 14 118 Q 8 108, 12 100 L 16 98"
+            d="M 78 135 Q 55 130, 38 122 Q 22 112, 14 102 L 8 92 Q 12 106, 22 126 Q 36 144, 55 155 Q 68 160, 78 160 Z"
             fill="#6BB344"
-            stroke="#3d6b28"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+            stroke="none"
           />
-          {/* Tail underside — connects back to body to form closed shape */}
+          {/* Tail outline — only the visible outer contour */}
           <path
-            d="M 50 160 Q 38 158, 28 152 Q 18 144, 14 132 Q 10 120, 12 110 L 16 98"
-            fill="#6BB344"
-            stroke="#3d6b28"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          {/* Tail tip — pointed */}
-          <path
-            d="M 16 98 L 8 92"
+            d="M 56 140 Q 42 134, 32 126 Q 20 116, 14 104 L 8 92"
             fill="none"
             stroke="#3d6b28"
             strokeWidth="2"
             strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M 8 92 Q 12 108, 22 124 Q 34 140, 50 152 L 56 156"
+            fill="none"
+            stroke="#3d6b28"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           />
 
           {/* Tail spikes — continuing the back spike pattern */}
