@@ -30,16 +30,40 @@ export function Dino({
         role="img"
         aria-label="DinoDigest mascot"
       >
-        {/* ===== TAIL ===== */}
-        <path
-          d="M 55 155 Q 25 150, 18 130 Q 12 115, 22 108 Q 28 105, 32 110"
-          fill="#5B9A3C"
-          stroke="#3d6b28"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className={state === "happy" ? "animate-tail-wag" : ""}
-        />
+        {/* ===== TAIL — thick base merging with body, tapers to tip ===== */}
+        <g className={state === "happy" ? "animate-tail-wag" : ""}>
+          {/* Tail body — wide at base, curves left and tapers */}
+          <path
+            d="M 55 145 Q 42 140, 32 135 Q 20 128, 14 118 Q 8 108, 12 100 L 16 98"
+            fill="#6BB344"
+            stroke="#3d6b28"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          {/* Tail underside — connects back to body to form closed shape */}
+          <path
+            d="M 50 160 Q 38 158, 28 152 Q 18 144, 14 132 Q 10 120, 12 110 L 16 98"
+            fill="#6BB344"
+            stroke="#3d6b28"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          {/* Tail tip — pointed */}
+          <path
+            d="M 16 98 L 8 92"
+            fill="none"
+            stroke="#3d6b28"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+
+          {/* Tail spikes — continuing the back spike pattern */}
+          <polygon points="40,137 33,122 46,133" fill="#F5A623" stroke="#d4891a" strokeWidth="1" />
+          <polygon points="28,128 22,112 34,124" fill="#F5A623" stroke="#d4891a" strokeWidth="1" />
+          <polygon points="18,116 14,102 24,113" fill="#F5A623" stroke="#d4891a" strokeWidth="1" />
+        </g>
 
         {/* ===== BODY — chubby upright pear shape ===== */}
         <ellipse
@@ -211,11 +235,16 @@ export function Dino({
         <circle cx="148" cy="68" r="2.5" fill="#3d6b28" />
         <circle cx="142" cy="66" r="2" fill="#3d6b28" />
 
-        {/* ===== BACK SPIKES — zigzag triangles ===== */}
-        <polygon points="62,52 55,30 70,50" fill="#F5A623" stroke="#d4891a" strokeWidth="1" />
-        <polygon points="74,44 70,18 84,40" fill="#F5A623" stroke="#d4891a" strokeWidth="1" />
-        <polygon points="88,42 87,15 98,38" fill="#F5A623" stroke="#d4891a" strokeWidth="1" />
-        <polygon points="100,44 102,20 112,42" fill="#F5A623" stroke="#d4891a" strokeWidth="1" />
+        {/* ===== BACK SPIKES — continuous ridge from head to tail ===== */}
+        {/* Head spikes (largest) */}
+        <polygon points="72,55 65,28 80,50" fill="#F5A623" stroke="#d4891a" strokeWidth="1" />
+        <polygon points="82,48 78,18 92,44" fill="#F5A623" stroke="#d4891a" strokeWidth="1" />
+        <polygon points="94,46 93,16 104,42" fill="#F5A623" stroke="#d4891a" strokeWidth="1" />
+        {/* Upper back spikes (medium, transition) */}
+        <polygon points="60,72 52,52 68,68" fill="#F5A623" stroke="#d4891a" strokeWidth="1" />
+        <polygon points="52,90 44,70 58,86" fill="#F5A623" stroke="#d4891a" strokeWidth="1" />
+        {/* Lower back / body-tail junction spikes (smaller) */}
+        <polygon points="48,108 40,90 54,104" fill="#F5A623" stroke="#d4891a" strokeWidth="1" />
 
         {/* ===== MOUTH ===== */}
         {state === "happy" ? (
