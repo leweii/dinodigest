@@ -20,8 +20,8 @@ const DEPTH_STYLES = [
 const CONNECTOR_COLORS = ["#93c5fd", "#86efac", "#fde047", "#d946ef", "#fda4af"];
 
 const NODE_H = 32;
-const LEVEL_GAP = 52;
-const SIBLING_GAP = 14;
+const LEVEL_GAP = 60; // horizontal gap between depth levels
+const SIBLING_GAP = 14; // vertical gap between siblings
 const PAD_X_ROOT = 20;
 const PAD_X_NODE = 14;
 
@@ -39,15 +39,15 @@ function measureText(text: string, size: number, weight: number): number {
   return ctx.measureText(text).width;
 }
 
-// Layout types & helpers
+// Layout types — horizontal tree (root left, children right)
 type LNode = {
   data: MindMapNode;
   depth: number;
   children: LNode[];
-  w: number;
-  subtreeW: number;
-  x: number;
-  y: number;
+  w: number; // node width
+  subtreeH: number; // total height of this subtree
+  x: number; // left edge of node
+  y: number; // top edge of node
 };
 
 function buildTree(node: MindMapNode, depth: number): LNode {
@@ -56,29 +56,38 @@ function buildTree(node: MindMapNode, depth: number): LNode {
   const padX = depth === 0 ? PAD_X_ROOT : PAD_X_NODE;
   const w = Math.max(measureText(node.name, fontSize, fontWeight) + padX * 2, 56);
   const children = (node.children ?? []).map(c => buildTree(c, depth + 1));
-  const subtreeW =
+  const subtreeH =
     children.length === 0
-      ? w
+      ? NODE_H
       : Math.max(
-          w,
-          children.reduce((sum, c) => sum + c.subtreeW, 0) +
+          NODE_H,
+          children.reduce((sum, c) => sum + c.subtreeH, 0) +
             SIBLING_GAP * (children.length - 1),
         );
-  return { data: node, depth, children, w, subtreeW, x: 0, y: depth * (NODE_H + LEVEL_GAP) };
+  return { data: node, depth, children, w, subtreeH, x: 0, y: 0 };
 }
 
-function placeX(node: LNode, startX: number): void {
-  node.x = startX + (node.subtreeW - node.w) / 2;
+// Compute x from depth, y from subtree stacking
+function placeNodes(node: LNode, x: number, startY: number, maxWidthPerDepth: number[]): void {
+  node.x = x;
+  // vertically center this node in its subtree band
+  node.y = startY + (node.subtreeH - NODE_H) / 2;
+
   if (node.children.length > 0) {
-    const childrenTotalW =
-      node.children.reduce((s, c) => s + c.subtreeW, 0) +
-      SIBLING_GAP * (node.children.length - 1);
-    let cx = startX + (node.subtreeW - childrenTotalW) / 2;
+    const childX = x + maxWidthPerDepth[node.depth] + LEVEL_GAP;
+    let cy = startY;
     for (const child of node.children) {
-      placeX(child, cx);
-      cx += child.subtreeW + SIBLING_GAP;
+      placeNodes(child, childX, cy, maxWidthPerDepth);
+      cy += child.subtreeH + SIBLING_GAP;
     }
   }
+}
+
+// Collect max node width at each depth so columns align
+function collectMaxWidths(node: LNode, map: Map<number, number>): void {
+  const cur = map.get(node.depth) ?? 0;
+  if (node.w > cur) map.set(node.depth, node.w);
+  for (const c of node.children) collectMaxWidths(c, map);
 }
 
 function flatten(node: LNode): LNode[] {
@@ -102,12 +111,22 @@ export function MindMapRenderer({ data }: { data: Record<string, unknown> }) {
 
   const layout = useMemo(() => {
     const root = buildTree(mapData, 0);
-    placeX(root, 0);
+
+    // Collect max widths per depth for column alignment
+    const widthMap = new Map<number, number>();
+    collectMaxWidths(root, widthMap);
+    const maxDepth = Math.max(...widthMap.keys());
+    const maxWidthPerDepth: number[] = [];
+    for (let d = 0; d <= maxDepth; d++) {
+      maxWidthPerDepth.push(widthMap.get(d) ?? 56);
+    }
+
+    placeNodes(root, 0, 0, maxWidthPerDepth);
     const nodes = flatten(root);
     const edges = getLinks(root);
-    const totalW = root.subtreeW;
+    const totalW = Math.max(...nodes.map(n => n.x + n.w));
     const totalH = Math.max(...nodes.map(n => n.y)) + NODE_H;
-    return { nodes, edges, totalW, totalH };
+    return { nodes, edges, totalW, totalH, maxWidthPerDepth };
   }, [mapData]);
 
   // Center the tree in the viewport on first render
@@ -118,15 +137,14 @@ export function MindMapRenderer({ data }: { data: Record<string, unknown> }) {
     const rect = containerRef.current.getBoundingClientRect();
     const contentW = layout.totalW + 48;
     const contentH = layout.totalH + 48;
-    // Fit into view
     const scaleX = rect.width / contentW;
     const scaleY = rect.height / contentH;
-    const fitZoom = Math.max(0.4, Math.min(scaleX, scaleY, 1)); // don't shrink below 40%
+    const fitZoom = Math.max(0.4, Math.min(scaleX, scaleY, 1));
     const scaledW = contentW * fitZoom;
     const scaledH = contentH * fitZoom;
     setZoom(fitZoom);
     setPan({
-      x: (rect.width - scaledW) / 2,
+      x: 24, // keep root near left edge
       y: Math.max(8, (rect.height - scaledH) / 2),
     });
   }, [layout]);
@@ -134,7 +152,6 @@ export function MindMapRenderer({ data }: { data: Record<string, unknown> }) {
   // Mouse drag handlers
   const onPointerDown = useCallback(
     (e: React.PointerEvent) => {
-      // Only left button or touch
       if (e.button !== 0) return;
       setDragging(true);
       dragStart.current = { x: e.clientX, y: e.clientY, panX: pan.x, panY: pan.y };
@@ -157,32 +174,40 @@ export function MindMapRenderer({ data }: { data: Record<string, unknown> }) {
     setDragging(false);
   }, []);
 
-  // Wheel zoom (pinch on trackpad)
-  const onWheel = useCallback(
-    (e: React.WheelEvent) => {
+  // Wheel zoom — use native listener with passive:false to prevent page scroll
+  const zoomRef = useRef(zoom);
+  const panRef = useRef(pan);
+  zoomRef.current = zoom;
+  panRef.current = pan;
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
-      const container = containerRef.current;
-      if (!container) return;
+      e.stopPropagation();
 
       const rect = container.getBoundingClientRect();
-      // Cursor position relative to container
       const cx = e.clientX - rect.left;
       const cy = e.clientY - rect.top;
 
-      // Zoom factor
+      const curZoom = zoomRef.current;
+      const curPan = panRef.current;
       const delta = -e.deltaY * 0.001;
-      const nextZoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoom * (1 + delta)));
-      const ratio = nextZoom / zoom;
+      const nextZoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, curZoom * (1 + delta)));
+      const ratio = nextZoom / curZoom;
 
-      // Adjust pan so the point under cursor stays in place
       setPan({
-        x: cx - (cx - pan.x) * ratio,
-        y: cy - (cy - pan.y) * ratio,
+        x: cx - (cx - curPan.x) * ratio,
+        y: cy - (cy - curPan.y) * ratio,
       });
       setZoom(nextZoom);
-    },
-    [zoom, pan],
-  );
+    };
+
+    container.addEventListener("wheel", handleWheel, { passive: false });
+    return () => container.removeEventListener("wheel", handleWheel);
+  }, []);
 
   // Zoom buttons
   const zoomIn = () => {
@@ -218,13 +243,12 @@ export function MindMapRenderer({ data }: { data: Record<string, unknown> }) {
     const scaleX = rect.width / contentW;
     const scaleY = rect.height / contentH;
     const fitZoom = Math.max(0.4, Math.min(scaleX, scaleY, 1));
-    const scaledW = contentW * fitZoom;
     const scaledH = contentH * fitZoom;
     setZoom(fitZoom);
-    setPan({ x: (rect.width - scaledW) / 2, y: Math.max(8, (rect.height - scaledH) / 2) });
+    setPan({ x: 24, y: Math.max(8, (rect.height - scaledH) / 2) });
   };
 
-  const nodeKey = (n: LNode) => `${n.depth}:${n.x.toFixed(1)}:${n.data.name}`;
+  const nodeKey = (n: LNode) => `${n.depth}:${n.y.toFixed(1)}:${n.data.name}`;
 
   const M = 24;
   const svgW = layout.totalW + M * 2;
@@ -241,7 +265,6 @@ export function MindMapRenderer({ data }: { data: Record<string, unknown> }) {
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerLeave={onPointerUp}
-        onWheel={onWheel}
       >
         <svg
           width={svgW}
@@ -259,13 +282,14 @@ export function MindMapRenderer({ data }: { data: Record<string, unknown> }) {
           </defs>
 
           <g transform={`translate(${M},${M})`}>
-            {/* Connectors */}
+            {/* Connectors — horizontal bezier curves */}
             {layout.edges.map(({ src, tgt }, i) => {
-              const sx = src.x + src.w / 2;
-              const sy = src.y + NODE_H;
-              const tx = tgt.x + tgt.w / 2;
-              const ty = tgt.y;
-              const midY = sy + (ty - sy) * 0.5;
+              const srcMaxW = layout.maxWidthPerDepth[src.depth] ?? src.w;
+              const sx = src.x + srcMaxW; // right edge of source column
+              const sy = src.y + NODE_H / 2;
+              const tx = tgt.x; // left edge of target
+              const ty = tgt.y + NODE_H / 2;
+              const midX = sx + (tx - sx) * 0.5;
               const color = CONNECTOR_COLORS[Math.min(tgt.depth - 1, CONNECTOR_COLORS.length - 1)];
               const srcK = nodeKey(src);
               const tgtK = nodeKey(tgt);
@@ -274,7 +298,7 @@ export function MindMapRenderer({ data }: { data: Record<string, unknown> }) {
               return (
                 <path
                   key={i}
-                  d={`M${sx},${sy} C${sx},${midY} ${tx},${midY} ${tx},${ty}`}
+                  d={`M${sx},${sy} C${midX},${sy} ${midX},${ty} ${tx},${ty}`}
                   fill="none"
                   stroke={color}
                   strokeWidth={1.5}
