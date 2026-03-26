@@ -4,7 +4,8 @@ import type {
   ContentInput,
   DigestEvent,
 } from "@dinodigest/module-sdk";
-import { KeyPointsResultSchema } from "./schema.js";
+import { z } from "zod";
+import { KeyPointSchema, type KeyPointsResult, KeyPointsResultSchema } from "./schema.js";
 import { buildKeyPointsPrompt } from "./prompts.js";
 
 export class KeyPointsAgent implements DigestAgent {
@@ -19,31 +20,41 @@ export class KeyPointsAgent implements DigestAgent {
       this.runtime.userConfig.level,
     );
 
-    let result;
+    let keyPoints: KeyPointsResult["keyPoints"];
     try {
-      result = await this.runtime.llm.generateStructured(
+      const raw = await this.runtime.llm.generateStructured(
         prompt,
         KeyPointsResultSchema,
       );
-    } catch (err) {
-      yield {
-        type: "error",
-        error: `Key points extraction failed: ${err}`,
-        recoverable: false,
-      };
-      return;
+      keyPoints = raw.keyPoints;
+    } catch {
+      // Gemini sometimes returns a bare array instead of { keyPoints: [...] }
+      try {
+        const rawArray = await this.runtime.llm.generateStructured(
+          prompt,
+          z.array(KeyPointSchema),
+        );
+        keyPoints = rawArray;
+      } catch (err) {
+        yield {
+          type: "error",
+          error: `Key points extraction failed: ${err}`,
+          recoverable: false,
+        };
+        return;
+      }
     }
 
     yield { type: "progress", percent: 60 };
     yield {
       type: "status",
-      message: `Found ${result.keyPoints.length} key concepts`,
+      message: `Found ${keyPoints.length} key concepts`,
     };
 
     // Emit each key point as a separate result
-    const total = result.keyPoints.length;
+    const total = keyPoints.length;
     for (let i = 0; i < total; i++) {
-      const kp = result.keyPoints[i];
+      const kp = keyPoints[i];
 
       yield {
         type: "result",

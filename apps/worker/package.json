@@ -13,11 +13,13 @@
     "@dinodigest/db": "workspace:*",
     "@dinodigest/llm": "workspace:*",
     "@dinodigest/module-sdk": "workspace:*",
+    "@google/genai": "^1.46.0",
     "@mozilla/readability": "^0.6.0",
     "bullmq": "^5.0.0",
     "drizzle-orm": "^0.44.7",
     "ioredis": "^5.6.0",
-    "linkedom": "^0.18.12"
+    "linkedom": "^0.18.12",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

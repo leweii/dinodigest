@@ -104,7 +104,28 @@ export default function DigestPage({ params }: { params: Promise<{ id: string }>
   }
 
   // Done — show results
-  if (isDone && data && data.digests.length > 0) {
+  if (isDone && data) {
+    if (data.digests.length === 0) {
+      // Done but no digests — modules likely failed
+      return (
+        <div className="max-w-2xl mx-auto px-4 py-16 flex flex-col items-center">
+          <Dino state="idle" size={120} />
+          <h2 className="text-xl font-semibold mt-4 mb-2 text-amber-600">
+            No results generated
+          </h2>
+          <p className="text-gray-500 mb-2 text-center">
+            The article was extracted ({data.article.wordCount} words) but all digest modules failed.
+          </p>
+          <p className="text-gray-400 text-sm mb-4 text-center">
+            Check the worker terminal for error details.
+          </p>
+          <a href="/" className="text-green-600 hover:text-green-700 font-medium">
+            Try another URL
+          </a>
+        </div>
+      );
+    }
+
     return (
       <div className="max-w-3xl mx-auto px-4 py-8">
         {/* Header */}

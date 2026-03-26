@@ -25,11 +25,19 @@ async function main() {
   console.log("[DinoDigest Worker] Database connected");
 
   // 2. Initialize LLM client
-  const llm = createGeminiClient({
-    projectId: process.env.GOOGLE_CLOUD_PROJECT ?? "",
-    location: process.env.GOOGLE_CLOUD_LOCATION ?? "us-central1",
-  });
-  console.log("[DinoDigest Worker] LLM client initialized");
+  // Prefer API key (simpler), fall back to Vertex AI
+  const apiKey = process.env.GEMINI_API_KEY;
+  const llm = createGeminiClient(
+    apiKey
+      ? { apiKey }
+      : {
+          projectId: process.env.GOOGLE_CLOUD_PROJECT ?? "",
+          location: process.env.GOOGLE_CLOUD_LOCATION ?? "us-central1",
+        },
+  );
+  console.log(
+    `[DinoDigest Worker] LLM client initialized (${apiKey ? "API key" : "Vertex AI"})`,
+  );
 
   // 3. Register modules
   const registry = new ModuleRegistry();

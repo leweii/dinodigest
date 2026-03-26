@@ -4,7 +4,8 @@ import type {
   ContentInput,
   DigestEvent,
 } from "@dinodigest/module-sdk";
-import { QuizResultSchema } from "./schema.js";
+import { z } from "zod";
+import { QuizQuestionSchema, QuizResultSchema, type QuizResult } from "./schema.js";
 import { buildQuizPrompt } from "./prompts.js";
 
 export class QuizAgent implements DigestAgent {
@@ -19,31 +20,40 @@ export class QuizAgent implements DigestAgent {
       this.runtime.userConfig.level,
     );
 
-    let result;
+    let questions: QuizResult["questions"];
     try {
-      result = await this.runtime.llm.generateStructured(
+      const raw = await this.runtime.llm.generateStructured(
         prompt,
         QuizResultSchema,
       );
-    } catch (err) {
-      yield {
-        type: "error",
-        error: `Quiz generation failed: ${err}`,
-        recoverable: false,
-      };
-      return;
+      questions = raw.questions;
+    } catch {
+      // Gemini sometimes returns a bare array instead of { questions: [...] }
+      try {
+        const rawArray = await this.runtime.llm.generateStructured(
+          prompt,
+          z.array(QuizQuestionSchema),
+        );
+        questions = rawArray;
+      } catch (err) {
+        yield {
+          type: "error",
+          error: `Quiz generation failed: ${err}`,
+          recoverable: false,
+        };
+        return;
+      }
     }
 
     yield { type: "progress", percent: 70 };
     yield {
       type: "status",
-      message: `Generated ${result.questions.length} quiz questions`,
+      message: `Generated ${questions.length} quiz questions`,
     };
 
-    // Emit each question as a separate result
-    const total = result.questions.length;
+    const total = questions.length;
     for (let i = 0; i < total; i++) {
-      const q = result.questions[i];
+      const q = questions[i];
 
       yield {
         type: "result",

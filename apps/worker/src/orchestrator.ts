@@ -97,28 +97,34 @@ export class DigestOrchestrator {
         console.warn(`[Orchestrator] No applicable modules for article ${articleId}`);
       }
 
-      // 6. Run all agents in parallel
-      const results = await Promise.allSettled(
-        applicable.map((mod) => this.runAgent(articleId, mod, input)),
-      );
-
-      // Log failures
-      for (let i = 0; i < results.length; i++) {
-        if (results[i].status === "rejected") {
-          const err = (results[i] as PromiseRejectedResult).reason;
-          console.error(
-            `[Orchestrator] Module "${applicable[i].manifest.id}" failed:`,
-            err,
+      // 6. Run agents sequentially to avoid API rate limits
+      let succeeded = 0;
+      for (const mod of applicable) {
+        try {
+          await this.runAgent(articleId, mod, input);
+          succeeded++;
+          console.log(
+            `[Orchestrator] ✅ Module "${mod.manifest.id}" completed`,
           );
+        } catch (err) {
+          console.error(
+            `\n[Orchestrator] ❌ Module "${mod.manifest.id}" FAILED:`,
+          );
+          console.error(err);
+          console.error("");
           this.emit(articleId, {
             type: "error",
-            error: `Module "${applicable[i].manifest.name}" failed: ${err}`,
+            error: `Module "${mod.manifest.name}" failed: ${err}`,
             recoverable: true,
-            moduleId: applicable[i].manifest.id,
-            moduleName: applicable[i].manifest.name,
+            moduleId: mod.manifest.id,
+            moduleName: mod.manifest.name,
           });
         }
       }
+
+      console.log(
+        `[Orchestrator] Finished: ${succeeded}/${applicable.length} modules succeeded`,
+      );
 
       // 7. Done
       await this.db
@@ -169,41 +175,58 @@ export class DigestOrchestrator {
     });
 
     // Iterate through agent events
+    let resultCount = 0;
     for await (const event of agent.digest(input)) {
       // Forward event with module context
       this.emit(articleId, { ...event, moduleId, moduleName });
+
+      // Log errors from agents (they don't throw, they yield error events)
+      if (event.type === "error") {
+        console.error(`[${moduleId}] Agent error: ${event.error}`);
+      }
 
       // Save result outputs to DB
       if (event.type === "result") {
         const output = event.output;
 
-        await this.db.insert(digests).values({
-          articleId,
-          moduleId,
-          kind: output.kind,
-          data: output.data,
-        });
+        try {
+          await this.db.insert(digests).values({
+            articleId,
+            moduleId,
+            kind: output.kind,
+            data: output.data,
+          });
+          resultCount++;
+          console.log(`[${moduleId}] Saved ${output.kind} to database`);
+        } catch (dbErr) {
+          console.error(`[${moduleId}] Failed to save ${output.kind} to database:`, dbErr);
+        }
 
         // Flashcards get an extra copy in the flashcards table
         if (output.kind === "flashcard") {
-          // Look up the article to get deviceId
-          const article = await this.db.query.articles.findFirst({
-            where: eq(articles.id, articleId),
-            columns: { deviceId: true },
-          });
-
-          if (article) {
-            await this.db.insert(flashcards).values({
-              deviceId: article.deviceId,
-              articleId,
-              front: output.data.front,
-              back: output.data.back,
-              tags: output.data.tags,
+          try {
+            const article = await this.db.query.articles.findFirst({
+              where: eq(articles.id, articleId),
+              columns: { deviceId: true },
             });
+
+            if (article) {
+              await this.db.insert(flashcards).values({
+                deviceId: article.deviceId,
+                articleId,
+                front: output.data.front,
+                back: output.data.back,
+                tags: output.data.tags,
+              });
+            }
+          } catch (dbErr) {
+            console.error(`[${moduleId}] Failed to save flashcard:`, dbErr);
           }
         }
       }
     }
+
+    console.log(`[${moduleId}] Agent finished, ${resultCount} result(s) saved`);
   }
 
   /**

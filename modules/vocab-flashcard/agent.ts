@@ -4,7 +4,8 @@ import type {
   ContentInput,
   DigestEvent,
 } from "@dinodigest/module-sdk";
-import { VocabListSchema } from "./schema.js";
+import { z } from "zod";
+import { VocabWordSchema, VocabListSchema, type VocabList } from "./schema.js";
 import { buildVocabPrompt } from "./prompts.js";
 
 interface VocabConfig {
@@ -46,31 +47,41 @@ export class VocabFlashcardAgent implements DigestAgent {
 
     const prompt = buildVocabPrompt(input.content, this.config);
 
-    let vocabResult;
+    let words: VocabList["words"];
     try {
-      vocabResult = await this.runtime.llm.generateStructured(
+      const raw = await this.runtime.llm.generateStructured(
         prompt,
         VocabListSchema,
       );
-    } catch (err) {
-      yield {
-        type: "error",
-        error: `Vocabulary extraction failed: ${err}`,
-        recoverable: false,
-      };
-      return;
+      words = raw.words;
+    } catch {
+      // Gemini sometimes returns a bare array instead of { words: [...] }
+      try {
+        const rawArray = await this.runtime.llm.generateStructured(
+          prompt,
+          z.array(VocabWordSchema),
+        );
+        words = rawArray;
+      } catch (err) {
+        yield {
+          type: "error",
+          error: `Vocabulary extraction failed: ${err}`,
+          recoverable: false,
+        };
+        return;
+      }
     }
 
     yield { type: "progress", percent: 60 };
     yield {
       type: "status",
-      message: `Found ${vocabResult.words.length} vocabulary words`,
+      message: `Found ${words.length} vocabulary words`,
     };
 
     // Step 2: Generate flashcards
-    const total = vocabResult.words.length;
+    const total = words.length;
     for (let i = 0; i < total; i++) {
-      const word = vocabResult.words[i];
+      const word = words[i];
 
       const front = this.config.includeIPA
         ? `${word.word}  [${word.ipa}]`
