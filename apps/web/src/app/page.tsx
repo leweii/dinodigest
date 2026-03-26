@@ -191,46 +191,46 @@ export default function HomePage() {
         <p className="text-xs text-gray-300 text-center mb-6 tracking-[0.2em] uppercase font-medium">
           使用方法
         </p>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6">
           {/* Step 1 */}
-          <div className="group relative bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5">
-            <div className="flex items-center gap-3 mb-3">
-              <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-600 text-white text-xs font-bold shadow-sm">
+          <div className="group relative bg-white rounded-2xl p-8 border border-gray-100 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5">
+            <div className="flex items-center gap-3.5 mb-4">
+              <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-green-600 text-white text-sm font-bold shadow-sm">
                 1
               </span>
-              <p className="text-[15px] text-gray-900 font-semibold">粘贴链接</p>
+              <p className="text-base text-gray-900 font-semibold">粘贴链接</p>
             </div>
-            <p className="text-sm text-gray-400 leading-relaxed">
+            <p className="text-[15px] text-gray-400 leading-relaxed">
               任何博客或技术文章的 URL
             </p>
           </div>
 
           {/* Step 2 */}
-          <div className="group relative bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5">
-            <div className="flex items-center gap-3 mb-3">
-              <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-600 text-white text-xs font-bold shadow-sm">
+          <div className="group relative bg-white rounded-2xl p-8 border border-gray-100 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5">
+            <div className="flex items-center gap-3.5 mb-4">
+              <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-green-600 text-white text-sm font-bold shadow-sm">
                 2
               </span>
-              <p className="text-[15px] text-gray-900 font-semibold">恐龙咀嚼</p>
+              <p className="text-base text-gray-900 font-semibold">恐龙咀嚼</p>
             </div>
-            <p className="text-sm text-gray-400 leading-relaxed">
+            <p className="text-[15px] text-gray-400 leading-relaxed">
               AI 将内容拆解为易消化的知识块
             </p>
           </div>
 
           {/* Step 3 */}
-          <div className="group relative bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5">
-            <div className="flex items-center gap-3 mb-3">
-              <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-600 text-white text-xs font-bold shadow-sm">
+          <div className="group relative bg-white rounded-2xl p-8 border border-gray-100 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5">
+            <div className="flex items-center gap-3.5 mb-4">
+              <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-green-600 text-white text-sm font-bold shadow-sm">
                 3
               </span>
-              <p className="text-[15px] text-gray-900 font-semibold">你来吸收</p>
+              <p className="text-base text-gray-900 font-semibold">你来吸收</p>
             </div>
-            <div className="flex flex-wrap gap-1.5 mt-1">
-              <span className="inline-block px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-50 text-emerald-600">摘要</span>
-              <span className="inline-block px-2.5 py-1 text-xs font-medium rounded-full bg-blue-50 text-blue-600">闪卡</span>
-              <span className="inline-block px-2.5 py-1 text-xs font-medium rounded-full bg-amber-50 text-amber-600">知识点</span>
-              <span className="inline-block px-2.5 py-1 text-xs font-medium rounded-full bg-purple-50 text-purple-600">测验</span>
+            <div className="flex flex-wrap gap-2 mt-1">
+              <span className="inline-block px-3 py-1.5 text-sm font-medium rounded-full bg-emerald-50 text-emerald-600">摘要</span>
+              <span className="inline-block px-3 py-1.5 text-sm font-medium rounded-full bg-blue-50 text-blue-600">闪卡</span>
+              <span className="inline-block px-3 py-1.5 text-sm font-medium rounded-full bg-amber-50 text-amber-600">知识点</span>
+              <span className="inline-block px-3 py-1.5 text-sm font-medium rounded-full bg-purple-50 text-purple-600">测验</span>
             </div>
           </div>
         </div>
