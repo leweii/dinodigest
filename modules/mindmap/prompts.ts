@@ -90,6 +90,29 @@ Before outputting, verify:
 4. Is the map as detailed as the article demands — no artificial truncation?
 5. Is every node name specific to THIS article?
 
+## Output Format
+
+Return a single JSON object. Use EXACTLY these field names — no other field names are valid:
+
+\`\`\`
+{
+  "name": "<root node label>",
+  "children": [
+    {
+      "name": "<branch label>",
+      "children": [
+        {
+          "name": "<leaf label>",
+          "children": []
+        }
+      ]
+    }
+  ]
+}
+\`\`\`
+
+Every node must have a "name" field (string). "children" is optional for leaf nodes but must be an array when present. Do NOT use any other field names ("label", "title", "text", "node", "topic", etc.).
+
 ## Article Content
 
 ---
