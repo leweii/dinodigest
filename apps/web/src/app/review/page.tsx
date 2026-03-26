@@ -53,7 +53,7 @@ export default function ReviewPage() {
   if (loading) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-16 text-center">
-        <p className="text-gray-400">Loading cards...</p>
+        <p className="text-gray-400">加载闪卡中...</p>
       </div>
     );
   }
@@ -63,8 +63,8 @@ export default function ReviewPage() {
     return (
       <div className="max-w-2xl mx-auto px-4 py-16 flex flex-col items-center">
         <Dino state="happy" size={140} />
-        <h2 className="text-xl font-semibold mt-4 mb-2">All caught up!</h2>
-        <p className="text-gray-500">No cards due for review. Come back later.</p>
+        <h2 className="text-xl font-semibold mt-4 mb-2">全部复习完啦！</h2>
+        <p className="text-gray-500">暂时没有需要复习的闪卡，稍后再来吧。</p>
       </div>
     );
   }
@@ -72,7 +72,7 @@ export default function ReviewPage() {
   return (
     <div className="max-w-lg mx-auto px-4 py-8 flex flex-col items-center">
       {/* Progress */}
-      <p className="text-sm text-gray-400 mb-6">{remaining} cards remaining</p>
+      <p className="text-sm text-gray-400 mb-6">还剩 {remaining} 张卡片</p>
 
       {/* Card */}
       <div
@@ -89,7 +89,7 @@ export default function ReviewPage() {
           {!flipped ? (
             <div>
               <p className="text-2xl font-bold text-gray-900">{currentCard.front}</p>
-              <p className="text-xs text-gray-400 mt-4">tap to flip</p>
+              <p className="text-xs text-gray-400 mt-4">点击翻转</p>
             </div>
           ) : (
             <div className="text-left whitespace-pre-line text-sm text-gray-700 leading-relaxed">
@@ -108,7 +108,7 @@ export default function ReviewPage() {
             className="flex-1 py-3 bg-red-50 text-red-600 rounded-xl font-medium
                        hover:bg-red-100 transition-colors disabled:opacity-50"
           >
-            Again
+            重来
           </button>
           <button
             onClick={() => handleScore(3)}
@@ -116,7 +116,7 @@ export default function ReviewPage() {
             className="flex-1 py-3 bg-amber-50 text-amber-600 rounded-xl font-medium
                        hover:bg-amber-100 transition-colors disabled:opacity-50"
           >
-            Hard
+            困难
           </button>
           <button
             onClick={() => handleScore(4)}
@@ -124,7 +124,7 @@ export default function ReviewPage() {
             className="flex-1 py-3 bg-green-50 text-green-600 rounded-xl font-medium
                        hover:bg-green-100 transition-colors disabled:opacity-50"
           >
-            Good
+            一般
           </button>
           <button
             onClick={() => handleScore(5)}
@@ -132,7 +132,7 @@ export default function ReviewPage() {
             className="flex-1 py-3 bg-blue-50 text-blue-600 rounded-xl font-medium
                        hover:bg-blue-100 transition-colors disabled:opacity-50"
           >
-            Easy
+            简单
           </button>
         </div>
       )}

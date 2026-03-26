@@ -31,7 +31,7 @@ export default function HistoryPage() {
   if (loading) {
     return (
       <div className="max-w-3xl mx-auto px-4 py-16 text-center">
-        <p className="text-gray-400">Loading...</p>
+        <p className="text-gray-400">加载中...</p>
       </div>
     );
   }
@@ -40,13 +40,13 @@ export default function HistoryPage() {
     return (
       <div className="max-w-2xl mx-auto px-4 py-16 flex flex-col items-center">
         <Dino state="idle" size={120} />
-        <h2 className="text-xl font-semibold mt-4 mb-2">Knowledge Stomach is empty</h2>
-        <p className="text-gray-500 mb-4">Feed your dinosaur some articles!</p>
+        <h2 className="text-xl font-semibold mt-4 mb-2">知识胃是空的</h2>
+        <p className="text-gray-500 mb-4">快投喂一些文章给恐龙吧！</p>
         <Link
           href="/"
           className="text-green-600 hover:text-green-700 font-medium"
         >
-          Go feed
+          去投喂
         </Link>
       </div>
     );
@@ -54,7 +54,7 @@ export default function HistoryPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Knowledge Stomach</h1>
+      <h1 className="text-2xl font-bold text-gray-900 mb-6">知识胃</h1>
 
       <div className="space-y-3">
         {articles.map((article) => {
@@ -73,7 +73,7 @@ export default function HistoryPage() {
               <div className="flex items-center justify-between">
                 <div className="flex-1 min-w-0">
                   <h3 className="font-medium text-gray-900 truncate">
-                    {article.title || "Untitled"}
+                    {article.title || "无标题"}
                   </h3>
                   <p className="text-sm text-gray-400 truncate mt-0.5">
                     {article.sourceUrl}
@@ -83,19 +83,19 @@ export default function HistoryPage() {
                 <div className="flex items-center gap-3 ml-4">
                   {article.status === "done" ? (
                     <span className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">
-                      {totalDigests} items
+                      {totalDigests} 条结果
                     </span>
                   ) : article.status === "processing" ? (
                     <span className="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded-full">
-                      Processing...
+                      消化中...
                     </span>
                   ) : article.status === "failed" ? (
                     <span className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded-full">
-                      Failed
+                      失败
                     </span>
                   ) : (
                     <span className="text-xs text-gray-400 bg-gray-50 px-2 py-1 rounded-full">
-                      Pending
+                      等待中
                     </span>
                   )}
                 </div>

@@ -47,7 +47,7 @@ export function KeyPointRenderer({ data }: { data: Record<string, unknown> }) {
           {analogy && (
             <div className="mt-3 p-3 bg-amber-50 border border-amber-100 rounded-lg">
               <p className="text-sm text-amber-800">
-                <span className="font-medium">Analogy: </span>
+                <span className="font-medium">类比：</span>
                 {analogy}
               </p>
             </div>

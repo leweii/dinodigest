@@ -28,7 +28,7 @@ export function Dino({
         height={(size * 220) / 200}
         className={`select-none overflow-visible ${state === "chewing" ? "animate-body-sway" : ""}`}
         role="img"
-        aria-label="DinoDigest mascot"
+        aria-label="DinoDigest 恐龙吉祥物"
       >
         {/* ===== TAIL — thick base merging with body, tapers to tip ===== */}
         <g className={state === "happy" ? "animate-tail-wag" : ""}>

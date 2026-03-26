@@ -14,7 +14,7 @@ export function SummaryRenderer({ data }: { data: Record<string, unknown> }) {
       {bulletPoints.length > 0 && (
         <div>
           <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
-            Key Takeaways
+            核心要点
           </h4>
           <ul className="space-y-2">
             {bulletPoints.map((point, i) => (

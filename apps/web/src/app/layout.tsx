@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DinoDigest — Feed your brain",
-  description: "Paste a URL, let the dinosaur digest it into knowledge you can absorb.",
+  title: "DinoDigest — 喂饱你的大脑",
+  description: "粘贴一个链接，让恐龙把它消化成你能吸收的知识。",
 };
 
 export default function RootLayout({
@@ -25,7 +25,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="zh-CN"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-[var(--background)] text-[var(--foreground)]">
@@ -35,12 +35,12 @@ export default function RootLayout({
               DinoDigest
             </Link>
             <div className="flex gap-4 text-sm">
-              <Link href="/history" className="text-gray-600 hover:text-gray-900 transition-colors">
-                History
-              </Link>
-              <Link href="/review" className="text-gray-600 hover:text-gray-900 transition-colors">
-                Review
-              </Link>
+            <Link href="/history" className="text-gray-600 hover:text-gray-900 transition-colors">
+              历史
+            </Link>
+            <Link href="/review" className="text-gray-600 hover:text-gray-900 transition-colors">
+              复习
+            </Link>
             </div>
           </nav>
         </header>

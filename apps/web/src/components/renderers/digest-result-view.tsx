@@ -13,11 +13,11 @@ interface DigestData {
 }
 
 const TABS = [
-  { kind: "summary", label: "Summary" },
-  { kind: "key_point", label: "Key Points" },
-  { kind: "mind_map", label: "Mind Map" },
-  { kind: "flashcard", label: "Flashcards" },
-  { kind: "quiz", label: "Quiz" },
+  { kind: "summary", label: "摘要" },
+  { kind: "key_point", label: "知识点" },
+  { kind: "mind_map", label: "思维导图" },
+  { kind: "flashcard", label: "闪卡" },
+  { kind: "quiz", label: "测验" },
 ] as const;
 
 export function DigestResultView({ digests }: { digests: DigestData[] }) {
@@ -61,7 +61,7 @@ export function DigestResultView({ digests }: { digests: DigestData[] }) {
         ))}
 
         {activeDigests.length === 0 && (
-          <p className="text-gray-400 text-center py-8">No content yet</p>
+          <p className="text-gray-400 text-center py-8">暂无内容</p>
         )}
       </div>
     </div>
@@ -107,7 +107,7 @@ function FlashcardPreview({ data }: { data: Record<string, unknown> }) {
         {!flipped ? (
           <div>
             <p className="text-lg font-semibold text-gray-900">{String(data.front ?? "")}</p>
-            <p className="text-xs text-gray-400 mt-2">tap to flip</p>
+            <p className="text-xs text-gray-400 mt-2">点击翻转</p>
           </div>
         ) : (
           <div className="text-sm text-gray-700 whitespace-pre-line">

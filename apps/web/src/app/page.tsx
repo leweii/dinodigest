@@ -17,14 +17,14 @@ export default function HomePage() {
     setError("");
 
     if (!url.trim()) {
-      setError("Please paste a URL");
+      setError("请粘贴一个链接");
       return;
     }
 
     try {
       new URL(url);
     } catch {
-      setError("Please enter a valid URL");
+      setError("请输入有效的链接");
       return;
     }
 
@@ -47,9 +47,9 @@ export default function HomePage() {
     if (!res.ok) {
       try {
         const data = await res.json();
-        setError(data.error || "Failed to submit URL");
+        setError(data.error || "提交失败");
       } catch {
-        setError("Failed to submit URL");
+        setError("提交失败");
       }
       setPhase("idle");
       return;
@@ -59,7 +59,7 @@ export default function HomePage() {
       const { articleId } = await res.json();
       articleIdRef.current = articleId;
     } catch {
-      setError("Invalid response");
+      setError("响应无效");
       setPhase("idle");
       return;
     }
@@ -84,7 +84,7 @@ export default function HomePage() {
           DinoDigest
         </h1>
         <p className="text-gray-400 text-sm mb-10 text-center">
-          Feed it anything. Get knowledge back.
+          投喂任何内容，收获满满知识。
         </p>
 
         {/* Dino + Input composition */}
@@ -118,7 +118,7 @@ export default function HomePage() {
                     onKeyDown={(e) =>
                       e.key === "Enter" && !isActive && handleFeed()
                     }
-                    placeholder="Paste a blog URL here..."
+                    placeholder="在这里粘贴博客链接..."
                     className="flex-1 px-4 py-3 text-base bg-transparent
                                focus:outline-none placeholder:text-gray-400"
                     disabled={isActive}
@@ -131,7 +131,7 @@ export default function HomePage() {
                                disabled:opacity-40 disabled:cursor-not-allowed
                                whitespace-nowrap"
                   >
-                    {isActive ? "Nom nom..." : "Feed"}
+                    {isActive ? "嚼嚼嚼..." : "投喂"}
                   </button>
                 </div>
               </div>
@@ -170,12 +170,12 @@ export default function HomePage() {
           {/* Eating status text */}
           {phase === "eating" && (
             <p className="mt-3 text-sm text-green-600 text-center animate-fade-in font-medium">
-              Chomping down on that article...
+              正在大口咀嚼这篇文章...
             </p>
           )}
           {phase === "swallowed" && (
             <p className="mt-3 text-sm text-green-600 text-center animate-fade-in font-medium">
-              Gulp! Heading to digestion...
+              咕咚！吞下去了，开始消化...
             </p>
           )}
         </div>
@@ -189,18 +189,18 @@ export default function HomePage() {
       >
         <div>
           <div className="text-2xl mb-2">1</div>
-          <p className="text-sm text-gray-600 font-medium">Paste a URL</p>
-          <p className="text-xs text-gray-400 mt-1">Any English blog or article</p>
+          <p className="text-sm text-gray-600 font-medium">粘贴链接</p>
+          <p className="text-xs text-gray-400 mt-1">任何博客或技术文章</p>
         </div>
         <div>
           <div className="text-2xl mb-2">2</div>
-          <p className="text-sm text-gray-600 font-medium">Dino chews it</p>
-          <p className="text-xs text-gray-400 mt-1">AI breaks it into digestible pieces</p>
+          <p className="text-sm text-gray-600 font-medium">恐龙咀嚼</p>
+          <p className="text-xs text-gray-400 mt-1">AI 把内容拆解成易消化的知识</p>
         </div>
         <div>
           <div className="text-2xl mb-2">3</div>
-          <p className="text-sm text-gray-600 font-medium">You absorb it</p>
-          <p className="text-xs text-gray-400 mt-1">Summaries, flashcards, quizzes</p>
+          <p className="text-sm text-gray-600 font-medium">你来吸收</p>
+          <p className="text-xs text-gray-400 mt-1">摘要、闪卡、知识点、测验</p>
         </div>
       </div>
     </div>
