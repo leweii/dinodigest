@@ -1,13 +1,45 @@
 import { Worker } from "bullmq";
 import IORedis from "ioredis";
+import { createDB } from "@dinodigest/db";
+import { createGeminiClient } from "@dinodigest/llm";
+import { ModuleRegistry } from "./module-registry.js";
+import { DigestOrchestrator } from "./orchestrator.js";
+
+// Import modules
+import summaryModule from "@dinodigest/module-summary";
+import keyPointsModule from "@dinodigest/module-key-points";
 
 const REDIS_URL = process.env.REDIS_URL ?? "redis://localhost:6379";
+const DATABASE_URL =
+  process.env.DATABASE_URL ??
+  "postgresql://dinodigest:dinodigest@localhost:5432/dinodigest";
 const QUEUE_NAME = "digest";
 
 async function main() {
   console.log("[DinoDigest Worker] Starting...");
-  console.log(`[DinoDigest Worker] Connecting to Redis: ${REDIS_URL}`);
 
+  // 1. Initialize database
+  const db = createDB(DATABASE_URL);
+  console.log("[DinoDigest Worker] Database connected");
+
+  // 2. Initialize LLM client
+  const llm = createGeminiClient({
+    projectId: process.env.GOOGLE_CLOUD_PROJECT ?? "",
+    location: process.env.GOOGLE_CLOUD_LOCATION ?? "us-central1",
+  });
+  console.log("[DinoDigest Worker] LLM client initialized");
+
+  // 3. Register modules
+  const registry = new ModuleRegistry();
+  registry.register(summaryModule);
+  registry.register(keyPointsModule);
+  // Future: registry.register(vocabFlashcardModule);
+  // Future: registry.register(quizModule);
+
+  // 4. Create orchestrator
+  const orchestrator = new DigestOrchestrator(registry, llm, db);
+
+  // 5. Start BullMQ worker
   const connection = new IORedis(REDIS_URL, {
     maxRetriesPerRequest: null,
   });
@@ -15,14 +47,9 @@ async function main() {
   const worker = new Worker(
     QUEUE_NAME,
     async (job) => {
-      console.log(
-        `[DinoDigest Worker] Processing job ${job.id}: ${JSON.stringify(job.data)}`,
-      );
-
       const { articleId } = job.data as { articleId: string };
-
-      // TODO: implement orchestrator.orchestrate(articleId)
-      console.log(`[DinoDigest Worker] Would process article: ${articleId}`);
+      console.log(`[DinoDigest Worker] Processing article: ${articleId}`);
+      await orchestrator.orchestrate(articleId);
     },
     {
       connection,
@@ -40,6 +67,9 @@ async function main() {
 
   worker.on("ready", () => {
     console.log("[DinoDigest Worker] Ready and listening for jobs");
+    console.log(
+      `[DinoDigest Worker] Registered modules: ${registry.getAll().map((m) => m.manifest.id).join(", ")}`,
+    );
   });
 
   // Graceful shutdown

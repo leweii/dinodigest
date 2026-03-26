@@ -2,7 +2,11 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src"
+    "noEmit": true,
+    "paths": {
+      "@dinodigest/module-summary": ["../../modules/summary/index.ts"],
+      "@dinodigest/module-key-points": ["../../modules/key-points/index.ts"]
+    }
   },
-  "include": ["src"]
+  "include": ["src", "../../modules/*/index.ts"]
 }
