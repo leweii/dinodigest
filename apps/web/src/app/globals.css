@@ -3,8 +3,6 @@
 :root {
   --background: #fafbfc;
   --foreground: #1a1a2e;
-  --dino-green: #4CAF50;
-  --dino-dark: #388E3C;
 }
 
 @theme inline {
@@ -20,61 +18,133 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Dino animations */
-@keyframes chew {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(4px); }
+/* ========================================
+   Dino Animations — Picasso line art style
+   ======================================== */
+
+/* Jaw open/close for chewing */
+@keyframes jaw {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  40% { transform: translateY(-5px) rotate(-3deg); }
+  60% { transform: translateY(-5px) rotate(-3deg); }
 }
 
+/* Teeth appear/disappear */
 @keyframes chew-teeth {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+  40%, 60% { opacity: 0; }
 }
 
+/* Tail wag when happy */
+@keyframes tail-wag {
+  0%, 100% { transform: rotate(0deg); transform-origin: 40px 105px; }
+  25% { transform: rotate(-8deg); transform-origin: 40px 105px; }
+  75% { transform: rotate(8deg); transform-origin: 40px 105px; }
+}
+
+/* Arm grabbing motion */
+@keyframes arm-grab {
+  0%, 100% { transform: rotate(0deg); transform-origin: 105px 105px; }
+  50% { transform: rotate(10deg); transform-origin: 105px 105px; }
+}
+
+/* Eye blink */
 @keyframes blink {
-  0%, 90%, 100% { r: 4; }
-  95% { r: 0.5; }
+  0%, 92%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.1); }
 }
 
+/* Sparkle crosses */
 @keyframes sparkle {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(1.3); }
+  50% { opacity: 0.3; transform: scale(1.4); }
 }
 
-@keyframes bounce-gentle {
+/* Food particles flying out */
+@keyframes particle-1 {
+  0% { transform: translate(0, 0); opacity: 1; }
+  100% { transform: translate(8px, -6px); opacity: 0; }
+}
+@keyframes particle-2 {
+  0% { transform: translate(0, 0); opacity: 1; }
+  100% { transform: translate(10px, 2px); opacity: 0; }
+}
+@keyframes particle-3 {
+  0% { transform: translate(0, 0); opacity: 1; }
+  100% { transform: translate(5px, 6px); opacity: 0; }
+}
+
+/* Gentle floating for idle state */
+@keyframes float {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
+  50% { transform: translateY(-8px); }
 }
 
+/* Fade in from below */
 @keyframes fade-in {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-.animate-chew {
-  animation: chew 0.4s ease-in-out infinite;
+/* Chomp — the dino biting down on the input */
+@keyframes chomp {
+  0%, 100% { transform: translateY(0); }
+  15% { transform: translateY(3px); }
+  30% { transform: translateY(0); }
+}
+
+/* ========================================
+   Animation classes
+   ======================================== */
+
+.animate-jaw {
+  animation: jaw 0.5s ease-in-out infinite;
 }
 
 .animate-chew-teeth {
-  animation: chew-teeth 0.4s ease-in-out infinite;
+  animation: chew-teeth 0.5s ease-in-out infinite;
+}
+
+.animate-tail-wag {
+  animation: tail-wag 0.6s ease-in-out infinite;
+}
+
+.animate-arm-grab {
+  animation: arm-grab 0.5s ease-in-out infinite;
 }
 
 .animate-blink {
-  animation: blink 3s ease-in-out infinite;
+  animation: blink 3.5s ease-in-out infinite;
 }
 
 .animate-sparkle {
-  animation: sparkle 1s ease-in-out infinite;
+  animation: sparkle 1.2s ease-in-out infinite;
 }
 
 .animate-sparkle-delay {
-  animation: sparkle 1s ease-in-out 0.5s infinite;
+  animation: sparkle 1.2s ease-in-out 0.5s infinite;
 }
 
-.animate-bounce-gentle {
-  animation: bounce-gentle 2s ease-in-out infinite;
+.animate-particle-1 {
+  animation: particle-1 0.6s ease-out infinite;
+}
+
+.animate-particle-2 {
+  animation: particle-2 0.6s ease-out 0.15s infinite;
+}
+
+.animate-particle-3 {
+  animation: particle-3 0.6s ease-out 0.3s infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
 }
 
 .animate-fade-in {
   animation: fade-in 0.5s ease-out forwards;
+}
+
+.animate-chomp {
+  animation: chomp 0.3s ease-in-out;
 }

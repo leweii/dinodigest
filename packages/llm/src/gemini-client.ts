@@ -21,13 +21,21 @@ export interface GeminiClientConfig {
  * 2. Vertex AI (service account) — set GOOGLE_CLOUD_PROJECT + GOOGLE_APPLICATION_CREDENTIALS
  */
 export function createGeminiClient(config: GeminiClientConfig): LLMClient {
+  // When using API key mode, strip ALL Google Cloud env vars so the SDK
+  // doesn't auto-detect Vertex AI credentials from the system environment
+  if (config.apiKey) {
+    delete process.env.GOOGLE_APPLICATION_CREDENTIALS;
+    delete process.env.GOOGLE_CLOUD_PROJECT;
+    delete process.env.GOOGLE_CLOUD_LOCATION;
+    delete process.env.GCLOUD_PROJECT;
+    delete process.env.CLOUDSDK_CORE_PROJECT;
+  }
+
   let ai: GoogleGenAI;
 
   if (config.apiKey) {
-    // API key mode (Google AI Studio)
     ai = new GoogleGenAI({ apiKey: config.apiKey });
   } else if (config.projectId) {
-    // Vertex AI mode
     ai = new GoogleGenAI({
       vertexai: true,
       project: config.projectId,
@@ -39,7 +47,8 @@ export function createGeminiClient(config: GeminiClientConfig): LLMClient {
     );
   }
 
-  const modelName = config.model ?? "gemini-2.0-flash";
+  const modelName = config.model ?? process.env.GEMINI_MODEL ?? "gemini-2.0-flash";
+  console.log(`[LLM] Using model: ${modelName}, mode: ${config.apiKey ? "API key" : "Vertex AI"}`);
 
   return {
     async generate(prompt: string): Promise<string> {

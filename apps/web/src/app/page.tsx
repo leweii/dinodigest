@@ -8,6 +8,7 @@ export default function HomePage() {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [chomping, setChomping] = useState(false);
   const router = useRouter();
 
   const handleFeed = async () => {
@@ -24,6 +25,10 @@ export default function HomePage() {
       setError("Please enter a valid URL");
       return;
     }
+
+    // Chomp animation
+    setChomping(true);
+    setTimeout(() => setChomping(false), 300);
 
     setLoading(true);
     try {
@@ -49,49 +54,75 @@ export default function HomePage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-16 flex flex-col items-center">
-      {/* Dinosaur */}
-      <div className="animate-bounce-gentle mb-6">
-        <Dino state="idle" size={180} />
-      </div>
+    <div className="max-w-3xl mx-auto px-4 pt-8 pb-16 flex flex-col items-center">
+      {/* Dino + Input — the input sits inside the dino's open mouth */}
+      <div className="relative w-full flex flex-col items-center">
+        {/* Dino positioned so mouth aligns with input */}
+        <div
+          className={`relative z-10 ${loading ? "" : "animate-float"}`}
+          style={{ marginBottom: "-30px" }}
+        >
+          <Dino state={loading ? "chewing" : "idle"} size={220} />
+        </div>
 
-      {/* Title */}
-      <h1 className="text-3xl font-bold text-center mb-2 text-gray-900">
-        Feed your dinosaur
-      </h1>
-      <p className="text-gray-500 text-center mb-8">
-        Paste a blog URL and let DinoDigest break it down for you
-      </p>
+        {/* Input — visually "inside" the dino's mouth */}
+        <div
+          className={`relative z-20 w-full max-w-md transition-transform ${
+            chomping ? "animate-chomp" : ""
+          }`}
+        >
+          {/* Bite marks — decorative top edge */}
+          <div className="flex justify-center gap-1 -mb-1">
+            <div className="w-3 h-2 bg-[var(--background)] rounded-b-full border-x border-b border-gray-300" />
+            <div className="w-3 h-2 bg-[var(--background)] rounded-b-full border-x border-b border-gray-300" />
+            <div className="w-3 h-2 bg-[var(--background)] rounded-b-full border-x border-b border-gray-300" />
+            <div className="w-3 h-2 bg-[var(--background)] rounded-b-full border-x border-b border-gray-300" />
+            <div className="w-3 h-2 bg-[var(--background)] rounded-b-full border-x border-b border-gray-300" />
+          </div>
 
-      {/* Input */}
-      <div className="w-full max-w-lg">
-        <div className="flex gap-2">
-          <input
-            type="url"
-            value={url}
-            onChange={(e) => { setUrl(e.target.value); setError(""); }}
-            onKeyDown={(e) => e.key === "Enter" && !loading && handleFeed()}
-            placeholder="https://example.com/blog-post..."
-            className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl text-base
-                       focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-100
-                       placeholder:text-gray-400 transition-all"
-            disabled={loading}
-          />
-          <button
-            onClick={handleFeed}
-            disabled={loading}
-            className="px-6 py-3 bg-green-600 text-white font-semibold rounded-xl
-                       hover:bg-green-700 active:bg-green-800 transition-colors
-                       disabled:opacity-50 disabled:cursor-not-allowed
-                       whitespace-nowrap"
-          >
-            {loading ? "Feeding..." : "Feed"}
-          </button>
+          <div className="bg-white border-2 border-gray-300 rounded-2xl p-1 shadow-sm hover:border-gray-400 hover:shadow-md transition-all">
+            <div className="flex gap-1">
+              <input
+                type="url"
+                value={url}
+                onChange={(e) => {
+                  setUrl(e.target.value);
+                  setError("");
+                }}
+                onKeyDown={(e) => e.key === "Enter" && !loading && handleFeed()}
+                placeholder="Paste a URL to feed the dino..."
+                className="flex-1 px-4 py-3 text-base bg-transparent
+                           focus:outline-none placeholder:text-gray-400"
+                disabled={loading}
+              />
+              <button
+                onClick={handleFeed}
+                disabled={loading}
+                className="px-5 py-3 bg-gray-900 text-white text-sm font-semibold rounded-xl
+                           hover:bg-gray-800 active:bg-black transition-colors
+                           disabled:opacity-40 disabled:cursor-not-allowed
+                           whitespace-nowrap"
+              >
+                {loading ? "Chewing..." : "Feed"}
+              </button>
+            </div>
+          </div>
         </div>
 
         {error && (
-          <p className="mt-2 text-sm text-red-500 animate-fade-in">{error}</p>
+          <p className="mt-3 text-sm text-red-500 animate-fade-in">{error}</p>
         )}
+      </div>
+
+      {/* Tagline */}
+      <div className="mt-12 text-center">
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">
+          Feed it anything. Get knowledge back.
+        </h1>
+        <p className="text-gray-500 text-sm max-w-sm mx-auto">
+          Paste a blog URL — your dino chews it into summaries,
+          flashcards, key concepts, and quizzes.
+        </p>
       </div>
     </div>
   );

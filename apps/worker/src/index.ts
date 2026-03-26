@@ -25,8 +25,12 @@ async function main() {
   console.log("[DinoDigest Worker] Database connected");
 
   // 2. Initialize LLM client
-  // Prefer API key (simpler), fall back to Vertex AI
+  // When using API key mode, clear GOOGLE_APPLICATION_CREDENTIALS
+  // to prevent the SDK from falling back to Vertex AI service account auth
   const apiKey = process.env.GEMINI_API_KEY;
+  if (apiKey) {
+    delete process.env.GOOGLE_APPLICATION_CREDENTIALS;
+  }
   const llm = createGeminiClient(
     apiKey
       ? { apiKey }
