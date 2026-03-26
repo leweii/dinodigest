@@ -79,7 +79,7 @@ GOOD — traces the author's reasoning:
 
 ## Reader Level: ${userLevel}
 
-${userLevel === "beginner" ? "Simplify branches — keep the main flow clear and collapse fine details. Use intuitive language in node names." : ""}${userLevel === "intermediate" ? "Include mechanism-level branches where the author explains how things work. Show the connections between steps clearly." : ""}${userLevel === "advanced" ? "Capture the full depth of the author's reasoning including tradeoffs, edge cases, and nuanced distinctions. Branch deeply where the article goes deep."}
+${userLevel === "beginner" ? "Simplify branches — keep the main flow clear and collapse fine details. Use intuitive language in node names." : ""}${userLevel === "intermediate" ? "Include mechanism-level branches where the author explains how things work. Show the connections between steps clearly." : ""}${userLevel === "advanced" ? "Capture the full depth of the author's reasoning including tradeoffs, edge cases, and nuanced distinctions. Branch deeply where the article goes deep." : ""}
 
 ## Quality Gate
 
