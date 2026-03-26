@@ -7,7 +7,7 @@ export const SummaryResultSchema = z.object({
     .describe("A 3-5 sentence Chinese summary of the article's main points"),
   bulletPoints: z
     .array(z.string())
-    .describe("3-6 key takeaways as bullet points in Chinese"),
+    .describe("6-12 key takeaways as bullet points in Chinese"),
 });
 
 export type SummaryResult = z.infer<typeof SummaryResultSchema>;

@@ -17,7 +17,7 @@ const vocabFlashcardModule: DigestModule = {
     },
     outputs: ["flashcard"],
     configSchema: z.object({
-      maxCards: z.number().min(5).max(30).default(12),
+      maxCards: z.number().min(12).max(30).default(24),
       difficulty: z
         .enum(["beginner", "intermediate", "advanced"])
         .default("intermediate"),

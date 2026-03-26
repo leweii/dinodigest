@@ -19,7 +19,7 @@ export class VocabFlashcardAgent implements DigestAgent {
 
   constructor(private runtime: AgentRuntime) {
     this.config = {
-      maxCards: 12,
+      maxCards: 24,
       difficulty: "intermediate",
       includeIPA: true,
       ...(runtime.userConfig.moduleConfig as Partial<VocabConfig>),

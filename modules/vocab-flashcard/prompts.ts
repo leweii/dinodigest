@@ -125,5 +125,5 @@ Why it's bad (if contextSentence is wrong): If the article actually says "These 
 ${content.slice(0, 12000)}
 ---
 
-Extract exactly ${config.maxCards} vocabulary items following all instructions above. Return ONLY the JSON object matching the required schema.`;
+Extract ${config.maxCards} vocabulary items following all instructions above. Aim for comprehensive coverage of the article's important vocabulary — prioritize breadth across the article's key sections rather than clustering words from one paragraph. Return ONLY the JSON object matching the required schema.`;
 }

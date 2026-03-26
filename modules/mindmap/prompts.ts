@@ -2,90 +2,93 @@ export function buildMindMapPrompt(
   content: string,
   userLevel: string,
 ): string {
-  return `You are a senior information architect specializing in knowledge representation and concept mapping. Your expertise is decomposing complex technical texts into precise hierarchical structures that reveal how ideas relate, not merely what topics are mentioned.
+  return `You are a senior technical reader who excels at tracing an author's line of reasoning. Your skill is not categorizing topics — it is reconstructing HOW the author thinks: what they start from, what they build toward, and what branches off along the way.
 
 ## Task
 
-Analyze the article below and produce a mind map that captures its LOGICAL STRUCTURE — the argument flow, causal chains, and conceptual relationships — so that a Chinese student can glance at the map and reconstruct the article's core reasoning.
+Read the article below and produce a mind map that traces the article's ARGUMENT FLOW — the path the author takes from starting point to conclusion, with branches for sub-topics, evidence, and tangents that support the main line of reasoning.
 
-## Thinking Process
+Think of it as mapping the author's thought process: "The author starts with X, which leads to Y, and along the way explores Y1 and Y2, then arrives at Z."
 
-Before building the map, work through these steps internally:
+## Thinking Process (internal, do NOT output)
 
-1. **Identify the thesis**: What is the single core claim or purpose of this article?
-2. **Trace the argument skeleton**: How does the author build the argument? What are the major logical moves (problem → cause → solution → tradeoff, or concept → mechanism → application → limitation, etc.)?
-3. **Find conceptual relationships**: For each idea, ask: Is this a cause, effect, component, prerequisite, example, contrast, or consequence of another idea? This determines parent-child placement.
-4. **Check for MECE**: Are the top-level branches mutually exclusive (no overlap) and collectively exhaustive (no major aspect missing)?
-5. **Balance the tree**: If one branch is far deeper or wider than others, re-examine whether you've conflated multiple dimensions into one branch or split one dimension too finely.
+1. **Find the starting point**: Where does the author begin? What motivates this article — a problem, a question, an observation?
+2. **Trace the flow**: Follow the author's reasoning step by step. What does point A lead to? What does the author establish before moving to the next idea?
+3. **Identify branches**: At each major point, does the author explore sub-topics, give examples, compare alternatives, or discuss tradeoffs? These are branches off the main flow.
+4. **Find the destination**: Where does the argument end up? What conclusion, recommendation, or insight does the author reach?
+5. **Map it**: The main trunk is the argument flow (A → B → C → D). Branches hang off each node to capture the depth and detail at that point.
 
-## Structural Rules
+## Structure
 
-- **Root node**: The article's central thesis or topic — a precise noun phrase, not a vague category.
-- **Level 1 (3–6 branches)**: Each branch represents a DISTINCT DIMENSION of the topic (e.g., "why it matters," "how it works," "what limits it"). Branches should follow the article's logical flow, not arbitrary grouping.
-- **Level 2 (2–4 children per parent)**: Concrete sub-points that LOGICALLY BELONG under their parent through a clear relationship (part-of, caused-by, example-of, leads-to).
-- **Level 3 (optional, 1–3 children)**: Only for nodes that need decomposition — specific mechanisms, key examples, or important caveats. Use sparingly.
-- **Total nodes**: 15–30. Aim for depth where the article goes deep, breadth where it surveys.
+The mind map should follow the article's NARRATIVE FLOW, not impose categories:
+
+- **Root node**: The article's starting point or central question — what kicks off the discussion.
+- **Main trunk (Level 1 children of root)**: The major steps in the author's reasoning, IN THE ORDER the author presents them. This is the "spine" — reading just the Level 1 nodes should give you the article's argument arc.
+- **Branches (Level 2+)**: Sub-points, evidence, examples, mechanisms, tradeoffs, or tangents that the author explores at each step. Go as deep as the article goes — if the author spends 3 paragraphs on a sub-topic, that sub-topic deserves its own branch with children.
+
+Key principle: **The tree follows the article's flow, not an imposed taxonomy.** If the author discusses "Problem → Existing Solutions → Why They Fail → New Approach → How It Works → Tradeoffs → Conclusion", that IS the Level 1 structure.
 
 ## Node Naming Rules
 
-All node names in Chinese. Add the English term in parentheses for technical concepts.
+All node names in Chinese. Add English terms in parentheses for technical concepts.
 
-- **Concept nodes** — use a precise noun/noun phrase: "渲染策略 (Rendering Strategy)", NOT "关于渲染"
-- **Process/action nodes** — use "动词+宾语" pattern: "缓存失效 (Cache Invalidation)", NOT "缓存的问题"
-- **Relationship nodes** — encode the relationship: "性能瓶颈：DOM重排", NOT "性能"
-- **Length**: 2–8 Chinese characters + optional English term. Every character should carry meaning.
-- **Precision test**: Could the node name apply to many articles, or is it specific to THIS article? "优势" is too generic → "类型安全保障" is precise.
+- Be SPECIFIC: "客户端JS体积膨胀" not "问题"
+- Encode the POINT, not just the topic: "SSR仍需发送组件代码" not "SSR"
+- For flow nodes, capture the logical move: "因此引入信号机制 (Signals)" not "信号机制"
+- Length: concise but precise — every character should carry meaning
 
-## Good vs. Bad Structure Examples
+## Good vs. Bad Examples
 
-BAD — flat list disguised as a tree:
-  React 概述
-  ├── 组件
-  ├── 状态
-  ├── 生命周期
-  ├── Hook
-  ├── 性能
+BAD — imposed categories, no flow:
+  微服务架构
+  ├── 定义
+  ├── 优势
+  ├── 劣势
+  ├── 应用场景
   └── 总结
-(Problem: no logical relationships; could be a bullet list. Branch names are single generic nouns.)
+(Problem: This is a textbook outline, not the article's argument. The author didn't organize their thoughts this way.)
 
-GOOD — reveals logical structure:
-  React 的声明式UI范式
-  ├── 核心理念：UI即状态函数
-  │   ├── 组件化封装 (Components)
-  │   └── 单向数据流 (One-way Data Flow)
-  ├── 状态管理机制 (State Management)
-  │   ├── 局部状态：useState
-  │   ├── 副作用处理：useEffect
-  │   └── 跨组件共享：Context
-  ├── 渲染性能优化
-  │   ├── 虚拟DOM差异比对 (Virtual DOM Diffing)
-  │   └── 批量更新策略 (Batched Updates)
-  └── 设计取舍与局限
-      ├── 运行时开销 vs 编译时优化
-      └── 状态逻辑复用的复杂性
-(Why it's good: branches are distinct dimensions; children logically belong under parents; names are precise and encode relationships; the tree reconstructs the article's argument.)
+GOOD — traces the author's reasoning:
+  为什么我们从单体迁移到微服务
+  ├── 起因：部署频率从每周降到每月
+  │   ├── 代码耦合导致合并冲突激增
+  │   └── 一个模块的bug阻塞整个发布
+  ├── 第一次尝试：按功能拆分服务
+  │   ├── 拆出用户服务和订单服务
+  │   └── 立即遇到数据一致性问题
+  ├── 关键转折：引入事件驱动架构 (Event-Driven)
+  │   ├── 用消息队列解耦服务间通信
+  │   ├── 最终一致性 (Eventual Consistency) 的取舍
+  │   └── 团队需要适应异步思维模式
+  ├── 实际收益：部署频率恢复到每天多次
+  │   ├── 各团队独立发布
+  │   └── 故障隔离：单服务崩溃不影响全局
+  └── 诚实反思：被低估的运维复杂度
+      ├── 分布式追踪 (Distributed Tracing) 成为必需
+      ├── 服务数量膨胀带来的认知负担
+      └── 并非所有团队都适合这条路
+(Why it's good: You can read the Level 1 nodes and get the story arc. Each branch deepens that step with specifics. The flow matches how the author actually argued.)
 
 ## Anti-patterns — DO NOT:
 
-- Create flat lists with generic labels ("其他", "总结", "更多内容", "相关概念")
-- Place a node under a parent when there's no clear logical relationship
-- Make one branch with 6+ children while another has only 1
-- Use vague names that could apply to any article ("优势", "缺点", "应用")
-- Repeat information across branches
+- Impose textbook categories (定义/优势/劣势/应用) — follow the AUTHOR's structure
+- Create flat lists disguised as trees
+- Use generic labels ("其他", "总结", "相关概念", "背景")
 - Add nodes for content not in the article
+- Truncate the map artificially — if the article is detailed, the map should be detailed
 
 ## Reader Level: ${userLevel}
 
-${userLevel === "beginner" ? "Optimize for the big picture. Prefer higher-level conceptual branches. Reduce depth to 2 levels where possible. Use analogies or intuitive groupings in node names (e.g., '像乐高一样的组件化'). Target 15–20 total nodes." : ""}${userLevel === "intermediate" ? "Balance conceptual overview with technical specifics. Include mechanism-level detail at level 2–3. Show how concepts connect to practical usage. Target 20–25 total nodes." : ""}${userLevel === "advanced" ? "Include nuanced technical distinctions, tradeoffs, and edge cases. Add level-3 nodes for implementation details, performance characteristics, and design rationale. Target 25–30 total nodes." : ""}
+${userLevel === "beginner" ? "Simplify branches — keep the main flow clear and collapse fine details. Use intuitive language in node names." : ""}${userLevel === "intermediate" ? "Include mechanism-level branches where the author explains how things work. Show the connections between steps clearly." : ""}${userLevel === "advanced" ? "Capture the full depth of the author's reasoning including tradeoffs, edge cases, and nuanced distinctions. Branch deeply where the article goes deep."}
 
 ## Quality Gate
 
 Before outputting, verify:
-1. Does each level-1 branch represent a genuinely distinct dimension? (No overlap)
-2. Does every child logically belong under its parent through a nameable relationship?
-3. Could someone reconstruct the article's main argument by reading only the map?
-4. Are branches roughly balanced in depth and width?
-5. Is every node name specific to THIS article, not a generic placeholder?
+1. Can you read ONLY the Level 1 nodes and understand the article's argument arc?
+2. Does the order of Level 1 nodes match the author's actual reasoning flow?
+3. Does every branch add meaningful depth at that point in the argument?
+4. Is the map as detailed as the article demands — no artificial truncation?
+5. Is every node name specific to THIS article?
 
 ## Article Content
 

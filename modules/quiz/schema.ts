@@ -8,7 +8,7 @@ export const QuizQuestionSchema = z.object({
 });
 
 export const QuizResultSchema = z.object({
-  questions: z.array(QuizQuestionSchema).describe("3-5 comprehension questions"),
+  questions: z.array(QuizQuestionSchema).describe("6-12 comprehension questions"),
 });
 
 export type QuizQuestion = z.infer<typeof QuizQuestionSchema>;

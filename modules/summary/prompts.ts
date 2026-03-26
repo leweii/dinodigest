@@ -32,7 +32,7 @@ A 3-5 sentence Chinese summary for a ${userLevel} level reader. Structure it as:
 4. Significance: Why should the reader care? What changes because of this? (1 sentence)
 
 ### bulletPoints
-3-6 key takeaways in Chinese. Each bullet point must be a CONCRETE, SPECIFIC insight — something the reader can act on or apply. Start each bullet with an action-oriented framing.
+6-12 key takeaways in Chinese. Each bullet point must be a CONCRETE, SPECIFIC insight — something the reader can act on or apply. Start each bullet with an action-oriented framing. Cover the article comprehensively — include core arguments, supporting evidence, practical implications, and important caveats.
 
 # FORMATTING RULES
 

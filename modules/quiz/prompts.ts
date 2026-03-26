@@ -20,12 +20,12 @@ export function buildQuizPrompt(
 
   return `You are a senior educational assessment designer with 15 years of experience creating comprehension tests for Chinese university students studying English-language technical material. Your quiz questions are known for being fair but rigorous — a reader who truly understood the article will pass, while a reader who only skimmed or memorized phrases will fail.
 
-Your task: design 4 high-quality comprehension questions for the article below. All question text, options, and explanations must be in Simplified Chinese. Keep English technical terms in parentheses where they aid clarity, e.g. "容器化（containerization）".
+Your task: design 6-12 high-quality comprehension questions for the article below — generate more questions for longer or more complex articles, fewer for shorter ones. All question text, options, and explanations must be in Simplified Chinese. Keep English technical terms in parentheses where they aid clarity, e.g. "容器化（containerization）".
 
 ## Step-by-step process (follow this internally before generating output)
 
-**Step 1 — Identify the 4 most important ideas in the article.**
-Read the article and extract the 4 ideas that are most central to the author's argument or explanation. Ignore trivial details, examples used purely for illustration, and structural/meta information (e.g. "the article has 5 sections"). Prioritize:
+**Step 1 — Identify the 6-12 most important ideas in the article.**
+Read the article and extract the key ideas that are most central to the author's argument or explanation. For a rich article, aim for 10-12 ideas; for a focused article, 6-8 is sufficient. Ignore trivial details, examples used purely for illustration, and structural/meta information (e.g. "the article has 5 sections"). Prioritize:
   - The core thesis or main claim
   - Key mechanisms, causes, or trade-offs explained
   - Surprising or counterintuitive points the author emphasizes
@@ -89,13 +89,13 @@ Each explanation MUST:
 ## Output format
 
 Return a JSON object matching this exact schema:
-- questions: array of exactly 4 objects, each with:
+- questions: array of 6-12 objects (scale with article complexity), each with:
   - question (string): the question in Chinese
   - options (array of 4 strings): answer choices in Chinese, randomly order the correct answer's position
   - correctIndex (number, 0-3): index of the correct option
   - explanation (string): educational explanation in Chinese
 
-Vary the position of the correct answer across questions (don't always put it at index 0 or 3).
+Cover the article's content comprehensively — the question set should span the full breadth of the article's arguments, not cluster around one section. Vary the position of the correct answer across questions (don't always put it at index 0 or 3). Mix question types across Bloom's Taxonomy levels.
 
 ## Article content
 

@@ -12,7 +12,7 @@ export const VocabWordSchema = z.object({
 });
 
 export const VocabListSchema = z.object({
-  words: z.array(VocabWordSchema).describe("10-15 vocabulary words extracted from the article"),
+  words: z.array(VocabWordSchema).describe("12-24 vocabulary words extracted from the article"),
 });
 
 export type VocabWord = z.infer<typeof VocabWordSchema>;

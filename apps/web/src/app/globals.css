@@ -173,3 +173,37 @@ body {
 .animate-chomp {
   animation: chomp 0.3s ease-in-out;
 }
+
+/* ========================================
+   Mind Map Styles
+   ======================================== */
+
+.mindmap-container {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 24px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  position: relative;
+}
+
+.mindmap-container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.03) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.mindmap-node {
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.mindmap-link {
+  transition: opacity 0.2s ease;
+}
