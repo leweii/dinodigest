@@ -7,24 +7,10 @@ export interface FetchedContent {
   wordCount: number;
 }
 
-/**
- * Fetch a URL and extract clean article text.
- * Uses Mozilla Readability for article extraction.
- */
-export async function fetchAndExtract(url: string): Promise<FetchedContent> {
-  // Validate URL
-  let parsedUrl: URL;
-  try {
-    parsedUrl = new URL(url);
-  } catch {
-    throw new Error(`Invalid URL: ${url}`);
-  }
+// Minimum word count to consider Readability extraction successful
+const MIN_WORD_COUNT = 100;
 
-  if (!["http:", "https:"].includes(parsedUrl.protocol)) {
-    throw new Error(`Unsupported protocol: ${parsedUrl.protocol}`);
-  }
-
-  // Fetch HTML
+async function fetchWithReadability(url: string, parsedUrl: URL): Promise<FetchedContent> {
   const response = await fetch(url, {
     headers: {
       "User-Agent":
@@ -44,11 +30,7 @@ export async function fetchAndExtract(url: string): Promise<FetchedContent> {
     throw new Error("Empty response from URL");
   }
 
-  // Parse with linkedom (lightweight DOM for Node.js)
   const { document } = parseHTML(html);
-
-  // Extract article with Readability
-  // linkedom's document is compatible with Readability
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const reader = new Readability(document as any);
   const article = reader.parse();
@@ -60,9 +42,70 @@ export async function fetchAndExtract(url: string): Promise<FetchedContent> {
   const text = article.textContent.trim();
   const wordCount = text.split(/\s+/).filter(Boolean).length;
 
+  if (wordCount < MIN_WORD_COUNT) {
+    throw new Error(`Extracted content too short: ${wordCount} words`);
+  }
+
   return {
     title: article.title || parsedUrl.hostname,
     text,
     wordCount,
   };
+}
+
+async function fetchWithJina(url: string, parsedUrl: URL): Promise<FetchedContent> {
+  const jinaUrl = `https://r.jina.ai/${url}`;
+  const response = await fetch(jinaUrl, {
+    headers: {
+      Accept: "text/plain",
+      "X-Return-Format": "text",
+    },
+    signal: AbortSignal.timeout(60_000),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Jina fetch failed: ${response.status} ${response.statusText}`);
+  }
+
+  const text = await response.text();
+  if (!text.trim()) {
+    throw new Error("Empty response from Jina");
+  }
+
+  // Jina prepends "Title: ..." and "URL Source: ..." lines — extract title if present
+  const titleMatch = text.match(/^Title:\s*(.+)$/m);
+  const title = titleMatch?.[1]?.trim() || parsedUrl.hostname;
+
+  // Strip Jina metadata header lines before counting words
+  const body = text.replace(/^(Title|URL Source|Published Time):.*$/gm, "").trim();
+  const wordCount = body.split(/\s+/).filter(Boolean).length;
+
+  return { title, text: body, wordCount };
+}
+
+/**
+ * Fetch a URL and extract clean article text.
+ * Primary: Mozilla Readability + linkedom (fast, self-hosted).
+ * Fallback: Jina Reader API (handles JS-rendered pages and anti-bot sites).
+ */
+export async function fetchAndExtract(url: string): Promise<FetchedContent> {
+  let parsedUrl: URL;
+  try {
+    parsedUrl = new URL(url);
+  } catch {
+    throw new Error(`Invalid URL: ${url}`);
+  }
+
+  if (!["http:", "https:"].includes(parsedUrl.protocol)) {
+    throw new Error(`Unsupported protocol: ${parsedUrl.protocol}`);
+  }
+
+  try {
+    return await fetchWithReadability(url, parsedUrl);
+  } catch (readabilityError) {
+    console.warn(
+      `[fetcher] Readability failed (${(readabilityError as Error).message}), falling back to Jina`
+    );
+    return await fetchWithJina(url, parsedUrl);
+  }
 }
