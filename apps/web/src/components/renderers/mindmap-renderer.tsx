@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef, useCallback, useEffect } from "react";
 
 interface MindMapNode {
   name: string;
@@ -20,12 +20,15 @@ const DEPTH_STYLES = [
 const CONNECTOR_COLORS = ["#93c5fd", "#86efac", "#fde047", "#d946ef", "#fda4af"];
 
 const NODE_H = 32;
-const LEVEL_GAP = 52;   // vertical gap between bottom of parent and top of child
-const SIBLING_GAP = 14; // horizontal gap between sibling subtrees
+const LEVEL_GAP = 52;
+const SIBLING_GAP = 14;
 const PAD_X_ROOT = 20;
 const PAD_X_NODE = 14;
 
-// Canvas text measurement (client-only, falls back to estimate on SSR)
+const MIN_ZOOM = 0.2;
+const MAX_ZOOM = 2.5;
+
+// Canvas text measurement
 let _canvas: HTMLCanvasElement | null = null;
 function measureText(text: string, size: number, weight: number): number {
   if (typeof document === "undefined") return text.length * size * 0.62;
@@ -36,15 +39,15 @@ function measureText(text: string, size: number, weight: number): number {
   return ctx.measureText(text).width;
 }
 
-// Internal layout node
+// Layout types & helpers
 type LNode = {
   data: MindMapNode;
   depth: number;
   children: LNode[];
-  w: number;          // node box width
-  subtreeW: number;   // total horizontal span of this subtree
-  x: number;          // left edge of node box
-  y: number;          // top edge of node box
+  w: number;
+  subtreeW: number;
+  x: number;
+  y: number;
 };
 
 function buildTree(node: MindMapNode, depth: number): LNode {
@@ -52,9 +55,7 @@ function buildTree(node: MindMapNode, depth: number): LNode {
   const fontWeight = depth === 0 ? 700 : depth === 1 ? 600 : 400;
   const padX = depth === 0 ? PAD_X_ROOT : PAD_X_NODE;
   const w = Math.max(measureText(node.name, fontSize, fontWeight) + padX * 2, 56);
-
   const children = (node.children ?? []).map(c => buildTree(c, depth + 1));
-
   const subtreeW =
     children.length === 0
       ? w
@@ -63,14 +64,11 @@ function buildTree(node: MindMapNode, depth: number): LNode {
           children.reduce((sum, c) => sum + c.subtreeW, 0) +
             SIBLING_GAP * (children.length - 1),
         );
-
   return { data: node, depth, children, w, subtreeW, x: 0, y: depth * (NODE_H + LEVEL_GAP) };
 }
 
 function placeX(node: LNode, startX: number): void {
-  // Center this node over its allocated horizontal span
   node.x = startX + (node.subtreeW - node.w) / 2;
-
   if (node.children.length > 0) {
     const childrenTotalW =
       node.children.reduce((s, c) => s + c.subtreeW, 0) +
@@ -87,115 +85,274 @@ function flatten(node: LNode): LNode[] {
   return [node, ...node.children.flatMap(flatten)];
 }
 
-function links(node: LNode): Array<{ src: LNode; tgt: LNode }> {
-  return node.children.flatMap(c => [{ src: node, tgt: c }, ...links(c)]);
+function getLinks(node: LNode): Array<{ src: LNode; tgt: LNode }> {
+  return node.children.flatMap(c => [{ src: node, tgt: c }, ...getLinks(c)]);
 }
 
 export function MindMapRenderer({ data }: { data: Record<string, unknown> }) {
   const mapData = data as unknown as MindMapNode;
   const [hovered, setHovered] = useState<string | null>(null);
 
+  // Pan & zoom state
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [dragging, setDragging] = useState(false);
+  const dragStart = useRef({ x: 0, y: 0, panX: 0, panY: 0 });
+
   const layout = useMemo(() => {
     const root = buildTree(mapData, 0);
     placeX(root, 0);
     const nodes = flatten(root);
-    const edges = links(root);
+    const edges = getLinks(root);
     const totalW = root.subtreeW;
     const totalH = Math.max(...nodes.map(n => n.y)) + NODE_H;
     return { nodes, edges, totalW, totalH };
   }, [mapData]);
 
+  // Center the tree in the viewport on first render
+  const initialized = useRef(false);
+  useEffect(() => {
+    if (initialized.current || !containerRef.current) return;
+    initialized.current = true;
+    const rect = containerRef.current.getBoundingClientRect();
+    const contentW = layout.totalW + 48;
+    const contentH = layout.totalH + 48;
+    // Fit into view
+    const scaleX = rect.width / contentW;
+    const scaleY = rect.height / contentH;
+    const fitZoom = Math.min(scaleX, scaleY, 1); // don't zoom in past 1x
+    const scaledW = contentW * fitZoom;
+    const scaledH = contentH * fitZoom;
+    setZoom(fitZoom);
+    setPan({
+      x: (rect.width - scaledW) / 2,
+      y: (rect.height - scaledH) / 2,
+    });
+  }, [layout]);
+
+  // Mouse drag handlers
+  const onPointerDown = useCallback(
+    (e: React.PointerEvent) => {
+      // Only left button or touch
+      if (e.button !== 0) return;
+      setDragging(true);
+      dragStart.current = { x: e.clientX, y: e.clientY, panX: pan.x, panY: pan.y };
+      (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+    },
+    [pan],
+  );
+
+  const onPointerMove = useCallback(
+    (e: React.PointerEvent) => {
+      if (!dragging) return;
+      const dx = e.clientX - dragStart.current.x;
+      const dy = e.clientY - dragStart.current.y;
+      setPan({ x: dragStart.current.panX + dx, y: dragStart.current.panY + dy });
+    },
+    [dragging],
+  );
+
+  const onPointerUp = useCallback(() => {
+    setDragging(false);
+  }, []);
+
+  // Wheel zoom (pinch on trackpad)
+  const onWheel = useCallback(
+    (e: React.WheelEvent) => {
+      e.preventDefault();
+      const container = containerRef.current;
+      if (!container) return;
+
+      const rect = container.getBoundingClientRect();
+      // Cursor position relative to container
+      const cx = e.clientX - rect.left;
+      const cy = e.clientY - rect.top;
+
+      // Zoom factor
+      const delta = -e.deltaY * 0.001;
+      const nextZoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoom * (1 + delta)));
+      const ratio = nextZoom / zoom;
+
+      // Adjust pan so the point under cursor stays in place
+      setPan({
+        x: cx - (cx - pan.x) * ratio,
+        y: cy - (cy - pan.y) * ratio,
+      });
+      setZoom(nextZoom);
+    },
+    [zoom, pan],
+  );
+
+  // Zoom buttons
+  const zoomIn = () => {
+    const container = containerRef.current;
+    if (!container) return;
+    const rect = container.getBoundingClientRect();
+    const cx = rect.width / 2;
+    const cy = rect.height / 2;
+    const nextZoom = Math.min(MAX_ZOOM, zoom * 1.3);
+    const ratio = nextZoom / zoom;
+    setPan({ x: cx - (cx - pan.x) * ratio, y: cy - (cy - pan.y) * ratio });
+    setZoom(nextZoom);
+  };
+
+  const zoomOut = () => {
+    const container = containerRef.current;
+    if (!container) return;
+    const rect = container.getBoundingClientRect();
+    const cx = rect.width / 2;
+    const cy = rect.height / 2;
+    const nextZoom = Math.max(MIN_ZOOM, zoom / 1.3);
+    const ratio = nextZoom / zoom;
+    setPan({ x: cx - (cx - pan.x) * ratio, y: cy - (cy - pan.y) * ratio });
+    setZoom(nextZoom);
+  };
+
+  const resetView = () => {
+    if (!containerRef.current) return;
+    initialized.current = false;
+    const rect = containerRef.current.getBoundingClientRect();
+    const contentW = layout.totalW + 48;
+    const contentH = layout.totalH + 48;
+    const scaleX = rect.width / contentW;
+    const scaleY = rect.height / contentH;
+    const fitZoom = Math.min(scaleX, scaleY, 1);
+    const scaledW = contentW * fitZoom;
+    const scaledH = contentH * fitZoom;
+    setZoom(fitZoom);
+    setPan({ x: (rect.width - scaledW) / 2, y: (rect.height - scaledH) / 2 });
+  };
+
   const nodeKey = (n: LNode) => `${n.depth}:${n.x.toFixed(1)}:${n.data.name}`;
 
-  const M = 24; // margin
+  const M = 24;
   const svgW = layout.totalW + M * 2;
   const svgH = layout.totalH + M * 2;
 
   return (
-    <div className="overflow-x-auto w-full">
-      <svg
-        width={svgW}
-        height={svgH}
-        className="select-none"
-        style={{ minWidth: Math.min(svgW, 320) }}
+    <div className="relative w-full" style={{ height: Math.min(svgH * zoom + 80, 600) }}>
+      {/* Canvas — drag & zoom area */}
+      <div
+        ref={containerRef}
+        className="absolute inset-0 overflow-hidden rounded-xl border border-gray-200 bg-white"
+        style={{ cursor: dragging ? "grabbing" : "grab", touchAction: "none" }}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerLeave={onPointerUp}
+        onWheel={onWheel}
       >
-        <defs>
-          <filter id="mm-shadow" x="-10%" y="-20%" width="120%" height="140%">
-            <feDropShadow dx="0" dy="1" stdDeviation="2" floodColor="#000" floodOpacity="0.07" />
-          </filter>
-        </defs>
+        <svg
+          width={svgW}
+          height={svgH}
+          className="select-none"
+          style={{
+            transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+            transformOrigin: "0 0",
+          }}
+        >
+          <defs>
+            <filter id="mm-shadow" x="-10%" y="-20%" width="120%" height="140%">
+              <feDropShadow dx="0" dy="1" stdDeviation="2" floodColor="#000" floodOpacity="0.07" />
+            </filter>
+          </defs>
 
-        <g transform={`translate(${M},${M})`}>
-          {/* Connectors — vertical S-curves from parent bottom-center to child top-center */}
-          {layout.edges.map(({ src, tgt }, i) => {
-            const sx = src.x + src.w / 2;
-            const sy = src.y + NODE_H;
-            const tx = tgt.x + tgt.w / 2;
-            const ty = tgt.y;
-            const midY = sy + (ty - sy) * 0.5;
-            const color =
-              CONNECTOR_COLORS[Math.min(tgt.depth - 1, CONNECTOR_COLORS.length - 1)];
-            const srcKey = nodeKey(src);
-            const tgtKey = nodeKey(tgt);
-            const lit = hovered === srcKey || hovered === tgtKey;
+          <g transform={`translate(${M},${M})`}>
+            {/* Connectors */}
+            {layout.edges.map(({ src, tgt }, i) => {
+              const sx = src.x + src.w / 2;
+              const sy = src.y + NODE_H;
+              const tx = tgt.x + tgt.w / 2;
+              const ty = tgt.y;
+              const midY = sy + (ty - sy) * 0.5;
+              const color = CONNECTOR_COLORS[Math.min(tgt.depth - 1, CONNECTOR_COLORS.length - 1)];
+              const srcK = nodeKey(src);
+              const tgtK = nodeKey(tgt);
+              const lit = hovered === srcK || hovered === tgtK;
 
-            return (
-              <path
-                key={i}
-                d={`M${sx},${sy} C${sx},${midY} ${tx},${midY} ${tx},${ty}`}
-                fill="none"
-                stroke={color}
-                strokeWidth={1.5}
-                opacity={hovered ? (lit ? 1 : 0.12) : 0.5}
-              />
-            );
-          })}
-
-          {/* Nodes */}
-          {layout.nodes.map((n, i) => {
-            const style = DEPTH_STYLES[Math.min(n.depth, DEPTH_STYLES.length - 1)];
-            const key = nodeKey(n);
-            const faded = hovered !== null && hovered !== key;
-            const fontSize = n.depth === 0 ? 15 : n.depth === 1 ? 13 : 12;
-            const fontWeight = n.depth === 0 ? 700 : n.depth === 1 ? 600 : 400;
-
-            return (
-              <g
-                key={i}
-                transform={`translate(${n.x},${n.y})`}
-                onMouseEnter={() => setHovered(key)}
-                onMouseLeave={() => setHovered(null)}
-                style={{ opacity: faded ? 0.25 : 1, cursor: "default" }}
-              >
-                <rect
-                  width={n.w}
-                  height={NODE_H}
-                  rx={n.depth === 0 ? 10 : 7}
-                  fill={style.bg}
-                  stroke={style.border}
-                  strokeWidth={n.depth === 0 ? 2 : 1}
-                  filter="url(#mm-shadow)"
+              return (
+                <path
+                  key={i}
+                  d={`M${sx},${sy} C${sx},${midY} ${tx},${midY} ${tx},${ty}`}
+                  fill="none"
+                  stroke={color}
+                  strokeWidth={1.5}
+                  opacity={hovered ? (lit ? 1 : 0.12) : 0.5}
                 />
-                <text
-                  x={n.w / 2}
-                  y={NODE_H / 2}
-                  textAnchor="middle"
-                  dominantBaseline="central"
-                  fontSize={fontSize}
-                  fontWeight={fontWeight}
-                  fill={style.text}
-                  style={{
-                    fontFamily:
-                      '-apple-system,"Noto Sans SC","PingFang SC",sans-serif',
-                  }}
+              );
+            })}
+
+            {/* Nodes */}
+            {layout.nodes.map((n, i) => {
+              const style = DEPTH_STYLES[Math.min(n.depth, DEPTH_STYLES.length - 1)];
+              const key = nodeKey(n);
+              const faded = hovered !== null && hovered !== key;
+              const fontSize = n.depth === 0 ? 15 : n.depth === 1 ? 13 : 12;
+              const fontWeight = n.depth === 0 ? 700 : n.depth === 1 ? 600 : 400;
+
+              return (
+                <g
+                  key={i}
+                  transform={`translate(${n.x},${n.y})`}
+                  onMouseEnter={() => setHovered(key)}
+                  onMouseLeave={() => setHovered(null)}
+                  style={{ opacity: faded ? 0.25 : 1, cursor: "default" }}
                 >
-                  {n.data.name}
-                </text>
-              </g>
-            );
-          })}
-        </g>
-      </svg>
+                  <rect
+                    width={n.w}
+                    height={NODE_H}
+                    rx={n.depth === 0 ? 10 : 7}
+                    fill={style.bg}
+                    stroke={style.border}
+                    strokeWidth={n.depth === 0 ? 2 : 1}
+                    filter="url(#mm-shadow)"
+                  />
+                  <text
+                    x={n.w / 2}
+                    y={NODE_H / 2}
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                    fontSize={fontSize}
+                    fontWeight={fontWeight}
+                    fill={style.text}
+                    style={{
+                      fontFamily: '-apple-system,"Noto Sans SC","PingFang SC",sans-serif',
+                    }}
+                  >
+                    {n.data.name}
+                  </text>
+                </g>
+              );
+            })}
+          </g>
+        </svg>
+      </div>
+
+      {/* Zoom controls — bottom-right corner */}
+      <div className="absolute bottom-3 right-3 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-lg border border-gray-200 shadow-sm px-1 py-0.5 z-10">
+        <button
+          onClick={zoomOut}
+          className="w-7 h-7 flex items-center justify-center text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded text-base font-medium transition-colors"
+          title="缩小"
+        >
+          −
+        </button>
+        <button
+          onClick={resetView}
+          className="px-1.5 h-7 flex items-center justify-center text-[11px] text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded font-medium tabular-nums transition-colors"
+          title="重置视图"
+        >
+          {Math.round(zoom * 100)}%
+        </button>
+        <button
+          onClick={zoomIn}
+          className="w-7 h-7 flex items-center justify-center text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded text-base font-medium transition-colors"
+          title="放大"
+        >
+          +
+        </button>
+      </div>
     </div>
   );
 }
