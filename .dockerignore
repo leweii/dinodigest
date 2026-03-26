@@ -1,0 +1,21 @@
+node_modules/
+.pnpm-store/
+dist/
+.next/
+.turbo/
+.env
+.env.local
+.env.*.local
+service-account.json
+*.log
+coverage/
+.git/
+.DS_Store
+.vercel
+docs/
+docker-compose.yml
+
+# Exclude web source but keep package.json (needed for pnpm lockfile)
+apps/web/src/
+apps/web/.next/
+apps/web/public/

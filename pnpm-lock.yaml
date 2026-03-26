@@ -84,9 +84,24 @@ importers:
       '@dinodigest/llm':
         specifier: workspace:*
         version: link:../../packages/llm
+      '@dinodigest/module-key-points':
+        specifier: workspace:*
+        version: link:../../modules/key-points
+      '@dinodigest/module-mindmap':
+        specifier: workspace:*
+        version: link:../../modules/mindmap
+      '@dinodigest/module-quiz':
+        specifier: workspace:*
+        version: link:../../modules/quiz
       '@dinodigest/module-sdk':
         specifier: workspace:*
         version: link:../../packages/module-sdk
+      '@dinodigest/module-summary':
+        specifier: workspace:*
+        version: link:../../modules/summary
+      '@dinodigest/module-vocab-flashcard':
+        specifier: workspace:*
+        version: link:../../modules/vocab-flashcard
       '@google/genai':
         specifier: ^1.46.0
         version: 1.46.0

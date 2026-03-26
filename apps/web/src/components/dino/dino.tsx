@@ -240,11 +240,6 @@ export function Dino({
         <polygon points="72,55 65,28 80,50" fill="#F5A623" stroke="#d4891a" strokeWidth="1" />
         <polygon points="82,48 78,18 92,44" fill="#F5A623" stroke="#d4891a" strokeWidth="1" />
         <polygon points="94,46 93,16 104,42" fill="#F5A623" stroke="#d4891a" strokeWidth="1" />
-        {/* Upper back spikes (medium, transition) */}
-        <polygon points="60,72 52,52 68,68" fill="#F5A623" stroke="#d4891a" strokeWidth="1" />
-        <polygon points="52,90 44,70 58,86" fill="#F5A623" stroke="#d4891a" strokeWidth="1" />
-        {/* Lower back / body-tail junction spikes (smaller) */}
-        <polygon points="48,108 40,90 54,104" fill="#F5A623" stroke="#d4891a" strokeWidth="1" />
 
         {/* ===== MOUTH ===== */}
         {state === "happy" ? (

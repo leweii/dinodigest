@@ -19,8 +19,22 @@ const DATABASE_URL =
 const QUEUE_NAME = "digest";
 
 async function main() {
+  console.log("[DinoDigest Worker] Starting...");
+  console.log("[DinoDigest Worker] DATABASE_URL:", DATABASE_URL.replace(/:[^@]+@/, ":***@"));
+  console.log("[DinoDigest Worker] REDIS_URL:", REDIS_URL.replace(/:[^@]+@/, ":***@"));
+
   // 1. Initialize database
   const db = createDB(DATABASE_URL);
+
+  // Health check: verify DB connectivity
+  try {
+    const result = await db.execute("SELECT 1 as ok");
+    console.log("[DinoDigest Worker] DB connection OK:", result);
+  } catch (err) {
+    console.error("[DinoDigest Worker] DB connection FAILED:");
+    console.error(err);
+    process.exit(1);
+  }
 
   // 2. Initialize LLM client
   // When using API key mode, clear GOOGLE_APPLICATION_CREDENTIALS
@@ -67,7 +81,12 @@ async function main() {
   );
 
   worker.on("failed", (job, err) => {
-    console.error(`[DinoDigest Worker] Job ${job?.id} failed:`, err.message);
+    console.error(`[DinoDigest Worker] Job ${job?.id} failed:`);
+    console.error(`  Message: ${err.message}`);
+    console.error(`  Stack: ${err.stack}`);
+    if ("cause" in err) {
+      console.error(`  Cause:`, err.cause);
+    }
   });
 
   worker.on("ready", () => {

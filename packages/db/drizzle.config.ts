@@ -7,6 +7,7 @@ export default defineConfig({
   dbCredentials: {
     url:
       process.env.DATABASE_URL ??
-      "postgresql://dinodigest:dinodigest@localhost:5432/dinodigest",
+      "postgresql://postgres.sbkjrotvowssoinmuhgm:xet4MUQqnv0yudqpq@aws-1-us-east-1.pooler.supabase.com:6543/postgres",
   },
+  schemaFilter: ["public"],
 });

@@ -2,14 +2,13 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "noEmit": true,
-    "paths": {
-      "@dinodigest/module-summary": ["../../modules/summary/index.ts"],
-      "@dinodigest/module-key-points": ["../../modules/key-points/index.ts"],
-      "@dinodigest/module-vocab-flashcard": ["../../modules/vocab-flashcard/index.ts"],
-      "@dinodigest/module-quiz": ["../../modules/quiz/index.ts"],
-      "@dinodigest/module-mindmap": ["../../modules/mindmap/index.ts"]
-    }
+    "rootDir": "./src",
+    "noEmit": true
   },
-  "include": ["src", "../../modules/*/index.ts"]
+  "include": ["src"],
+  "references": [
+    { "path": "../../packages/db" },
+    { "path": "../../packages/llm" },
+    { "path": "../../packages/module-sdk" }
+  ]
 }

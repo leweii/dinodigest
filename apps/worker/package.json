@@ -5,14 +5,19 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch --env-file=../../.env src/index.ts",
-    "build": "tsc",
-    "start": "node dist/index.js",
+    "build": "tsc --noEmit",
+    "start": "tsx src/index.ts",
     "lint": "tsc --noEmit"
   },
   "dependencies": {
     "@dinodigest/db": "workspace:*",
     "@dinodigest/llm": "workspace:*",
     "@dinodigest/module-sdk": "workspace:*",
+    "@dinodigest/module-summary": "workspace:*",
+    "@dinodigest/module-key-points": "workspace:*",
+    "@dinodigest/module-vocab-flashcard": "workspace:*",
+    "@dinodigest/module-quiz": "workspace:*",
+    "@dinodigest/module-mindmap": "workspace:*",
     "@google/genai": "^1.46.0",
     "@mozilla/readability": "^0.6.0",
     "bullmq": "^5.0.0",
