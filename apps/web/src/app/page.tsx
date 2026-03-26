@@ -188,46 +188,48 @@ export default function HomePage() {
         }`}
       >
         <p className="text-xs text-gray-400 text-center mb-4 tracking-widest">使用方法</p>
-        <div className="flex items-stretch gap-0">
-          {/* Step 1 */}
-          <div className="relative flex-1 bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-gray-300 transition-all">
-            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-900 text-white text-xs font-bold mb-3">1</span>
-            <p className="text-sm text-gray-800 font-semibold">粘贴链接</p>
-            <p className="text-xs text-gray-400 mt-1.5 leading-relaxed">任何博客或技术文章</p>
-          </div>
+        <div className="overflow-x-auto -mx-4 px-4 pb-2">
+          <div className="flex items-stretch gap-0 min-w-max">
+            {/* Step 1 */}
+            <div className="relative w-44 bg-white border border-dashed border-gray-300 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-gray-400 transition-all">
+              <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-900 text-white text-xs font-bold mb-3">1</span>
+              <p className="text-sm text-gray-800 font-semibold">粘贴链接</p>
+              <p className="text-xs text-gray-400 mt-1.5 leading-relaxed">任何博客或技术文章</p>
+            </div>
 
-          {/* Arrow 1→2 */}
-          <div className="flex items-center px-2 shrink-0">
-            <svg width="32" height="20" viewBox="0 0 32 20" fill="none">
-              <line x1="0" y1="10" x2="22" y2="10" stroke="#d1d5db" strokeWidth="2" strokeDasharray="4 3" />
-              <path d="M20 4 L28 10 L20 16" stroke="#9ca3af" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
+            {/* Arrow 1→2 */}
+            <div className="flex items-center px-2 shrink-0">
+              <svg width="32" height="20" viewBox="0 0 32 20" fill="none">
+                <line x1="0" y1="10" x2="22" y2="10" stroke="#d1d5db" strokeWidth="2" strokeDasharray="4 3" />
+                <path d="M20 4 L28 10 L20 16" stroke="#9ca3af" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
 
-          {/* Step 2 */}
-          <div className="relative flex-1 bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-gray-300 transition-all">
-            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-900 text-white text-xs font-bold mb-3">2</span>
-            <p className="text-sm text-gray-800 font-semibold">恐龙咀嚼</p>
-            <p className="text-xs text-gray-400 mt-1.5 leading-relaxed">AI 把内容拆解成易消化的知识</p>
-          </div>
+            {/* Step 2 */}
+            <div className="relative w-44 bg-white border border-dashed border-gray-300 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-gray-400 transition-all">
+              <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-900 text-white text-xs font-bold mb-3">2</span>
+              <p className="text-sm text-gray-800 font-semibold">恐龙咀嚼</p>
+              <p className="text-xs text-gray-400 mt-1.5 leading-relaxed">AI 把内容拆解成易消化的知识</p>
+            </div>
 
-          {/* Arrow 2→3 */}
-          <div className="flex items-center px-2 shrink-0">
-            <svg width="32" height="20" viewBox="0 0 32 20" fill="none">
-              <line x1="0" y1="10" x2="22" y2="10" stroke="#d1d5db" strokeWidth="2" strokeDasharray="4 3" />
-              <path d="M20 4 L28 10 L20 16" stroke="#9ca3af" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
+            {/* Arrow 2→3 */}
+            <div className="flex items-center px-2 shrink-0">
+              <svg width="32" height="20" viewBox="0 0 32 20" fill="none">
+                <line x1="0" y1="10" x2="22" y2="10" stroke="#d1d5db" strokeWidth="2" strokeDasharray="4 3" />
+                <path d="M20 4 L28 10 L20 16" stroke="#9ca3af" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
 
-          {/* Step 3 */}
-          <div className="relative flex-1 bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-gray-300 transition-all">
-            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-900 text-white text-xs font-bold mb-3">3</span>
-            <p className="text-sm text-gray-800 font-semibold">你来吸收</p>
-            <div className="flex flex-wrap gap-1.5 mt-2.5">
-              <span className="inline-block px-2 py-0.5 text-[11px] font-medium rounded-md bg-emerald-50 text-emerald-600 border border-emerald-100">摘要</span>
-              <span className="inline-block px-2 py-0.5 text-[11px] font-medium rounded-md bg-blue-50 text-blue-600 border border-blue-100">闪卡</span>
-              <span className="inline-block px-2 py-0.5 text-[11px] font-medium rounded-md bg-amber-50 text-amber-600 border border-amber-100">知识点</span>
-              <span className="inline-block px-2 py-0.5 text-[11px] font-medium rounded-md bg-purple-50 text-purple-600 border border-purple-100">测验</span>
+            {/* Step 3 */}
+            <div className="relative w-44 bg-white border border-dashed border-gray-300 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-gray-400 transition-all">
+              <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-900 text-white text-xs font-bold mb-3">3</span>
+              <p className="text-sm text-gray-800 font-semibold">你来吸收</p>
+              <div className="flex flex-wrap gap-1.5 mt-2.5">
+                <span className="inline-block px-2 py-0.5 text-[11px] font-medium rounded-md bg-emerald-50 text-emerald-600 border border-emerald-100">摘要</span>
+                <span className="inline-block px-2 py-0.5 text-[11px] font-medium rounded-md bg-blue-50 text-blue-600 border border-blue-100">闪卡</span>
+                <span className="inline-block px-2 py-0.5 text-[11px] font-medium rounded-md bg-amber-50 text-amber-600 border border-amber-100">知识点</span>
+                <span className="inline-block px-2 py-0.5 text-[11px] font-medium rounded-md bg-purple-50 text-purple-600 border border-purple-100">测验</span>
+              </div>
             </div>
           </div>
         </div>

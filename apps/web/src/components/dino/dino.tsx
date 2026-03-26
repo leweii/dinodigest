@@ -34,21 +34,30 @@ export function Dino({
         <g className={state === "happy" ? "animate-tail-wag" : ""}>
           {/* Tail fill — extends into body so the body ellipse covers the seam */}
           <path
-            d="M 78 135 Q 55 130, 38 122 Q 22 112, 14 102 L 8 92 Q 12 106, 22 126 Q 36 144, 55 155 Q 68 160, 78 160 Z"
+            d="M 78 130 Q 54 122, 32 112 Q 16 102, 8 90 Q 2 108, 8 128 Q 22 148, 50 162 Q 64 168, 78 168 Z"
             fill="#6BB344"
             stroke="none"
           />
-          {/* Tail outline — only the visible outer contour */}
+          {/* Tail outline top */}
           <path
-            d="M 56 140 Q 42 134, 32 126 Q 20 116, 14 104 L 8 92"
+            d="M 55 136 Q 38 128, 24 118 Q 14 108, 8 90"
             fill="none"
             stroke="#3d6b28"
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
+          {/* Tail tip — rounded cap */}
           <path
-            d="M 8 92 Q 12 108, 22 124 Q 34 140, 50 152 L 56 156"
+            d="M 8 90 Q 2 109, 8 128"
+            fill="none"
+            stroke="#3d6b28"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+          {/* Tail outline bottom */}
+          <path
+            d="M 8 128 Q 22 148, 50 162 L 55 166"
             fill="none"
             stroke="#3d6b28"
             strokeWidth="2"
@@ -57,9 +66,9 @@ export function Dino({
           />
 
           {/* Tail spikes — continuing the back spike pattern */}
-          <polygon points="40,137 33,122 46,133" fill="#F5A623" stroke="#d4891a" strokeWidth="1" />
-          <polygon points="28,128 22,112 34,124" fill="#F5A623" stroke="#d4891a" strokeWidth="1" />
-          <polygon points="18,116 14,102 24,113" fill="#F5A623" stroke="#d4891a" strokeWidth="1" />
+          <polygon points="42,128 35,114 48,124" fill="#F5A623" stroke="#d4891a" strokeWidth="1" />
+          <polygon points="28,120 23,106 36,116" fill="#F5A623" stroke="#d4891a" strokeWidth="1" />
+          <polygon points="16,112 12,98 23,108" fill="#F5A623" stroke="#d4891a" strokeWidth="1" />
         </g>
 
         {/* ===== BODY — chubby upright pear shape ===== */}
