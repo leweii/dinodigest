@@ -157,7 +157,7 @@ export default function HomePage() {
                       ? "happy"
                       : "idle"
                 }
-                size={140}
+                size={180}
               />
             </div>
           </div>

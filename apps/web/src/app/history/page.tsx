@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { Dino } from "@/components/dino/dino";
 
@@ -17,18 +17,27 @@ interface ArticleItem {
 export default function HistoryPage() {
   const [articles, setArticles] = useState<ArticleItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    fetch("/api/history")
+  const fetchPage = useCallback((p: number) => {
+    setLoading(true);
+    fetch(`/api/history?page=${p}`)
       .then((r) => r.json())
       .then((data) => {
         setArticles(data.articles ?? []);
+        setPage(data.page ?? 1);
+        setTotalPages(data.totalPages ?? 1);
         setLoading(false);
       })
       .catch(() => setLoading(false));
   }, []);
 
-  if (loading) {
+  useEffect(() => {
+    fetchPage(1);
+  }, [fetchPage]);
+
+  if (loading && articles.length === 0) {
     return (
       <div className="max-w-3xl mx-auto px-4 py-16 text-center">
         <p className="text-gray-400">加载中...</p>
@@ -36,7 +45,7 @@ export default function HistoryPage() {
     );
   }
 
-  if (articles.length === 0) {
+  if (articles.length === 0 && !loading) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-16 flex flex-col items-center">
         <Dino state="idle" size={120} />
@@ -56,7 +65,7 @@ export default function HistoryPage() {
     <div className="max-w-3xl mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">知识胃</h1>
 
-      <div className="space-y-3">
+      <div className={`space-y-3 transition-opacity duration-200 ${loading ? "opacity-50" : ""}`}>
         {articles.map((article) => {
           const totalDigests = Object.values(article.digestCounts).reduce(
             (a, b) => a + b,
@@ -104,6 +113,33 @@ export default function HistoryPage() {
           );
         })}
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-8">
+          <button
+            onClick={() => fetchPage(page - 1)}
+            disabled={page <= 1 || loading}
+            className="px-3 py-1.5 text-sm rounded-lg border border-gray-200 text-gray-600
+                       hover:bg-gray-50 transition-colors
+                       disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            上一页
+          </button>
+          <span className="text-sm text-gray-400 px-3">
+            {page} / {totalPages}
+          </span>
+          <button
+            onClick={() => fetchPage(page + 1)}
+            disabled={page >= totalPages || loading}
+            className="px-3 py-1.5 text-sm rounded-lg border border-gray-200 text-gray-600
+                       hover:bg-gray-50 transition-colors
+                       disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            下一页
+          </button>
+        </div>
+      )}
     </div>
   );
 }

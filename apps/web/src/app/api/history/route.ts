@@ -4,16 +4,27 @@ import { articles, digests } from "@dinodigest/db";
 import { getDB } from "@/lib/server";
 import { getOrCreateDevice } from "@/lib/device";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const page = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10) || 1);
+    const pageSize = 10;
+
     const deviceId = await getOrCreateDevice();
     const db = getDB();
 
-    // Get all articles for this device, newest first
+    // Count total articles for this device
+    const [{ total }] = await db
+      .select({ total: sql<number>`count(*)::int` })
+      .from(articles)
+      .where(eq(articles.deviceId, deviceId));
+
+    // Get articles for current page, newest first
     const articleList = await db.query.articles.findMany({
       where: eq(articles.deviceId, deviceId),
       orderBy: desc(articles.createdAt),
-      limit: 50,
+      limit: pageSize,
+      offset: (page - 1) * pageSize,
     });
 
     // Get digest counts per article
@@ -45,7 +56,13 @@ export async function GET() {
       }),
     );
 
-    return NextResponse.json({ articles: articlesWithCounts });
+    return NextResponse.json({
+      articles: articlesWithCounts,
+      page,
+      pageSize,
+      total,
+      totalPages: Math.ceil(total / pageSize),
+    });
   } catch (error) {
     console.error("[API /history] Error:", error);
     return NextResponse.json(
