@@ -80,10 +80,6 @@ export function createGeminiClient(config: GeminiClientConfig): LLMClient {
   const modelName = config.model ?? process.env.GEMINI_MODEL ?? "gemini-2.0-flash";
   const semaphore = new Semaphore(config.maxConcurrency ?? 2);
 
-  console.log(
-    `[LLM] Using model: ${modelName}, mode: ${config.apiKey ? "API key" : "Vertex AI"}, concurrency: ${config.maxConcurrency ?? 2}`,
-  );
-
   return {
     async generate(prompt: string): Promise<string> {
       await semaphore.acquire();

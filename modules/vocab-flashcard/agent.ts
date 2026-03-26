@@ -31,18 +31,14 @@ export class VocabFlashcardAgent implements DigestAgent {
     if (input.language !== "en") {
       yield {
         type: "error",
-        error: "Vocab flashcard module only supports English content",
+        error: "词汇闪卡模块仅支持英文内容",
         recoverable: false,
       };
       return;
     }
 
-    this.runtime.log.info(
-      `Processing: ${input.title} (${input.wordCount} words)`,
-    );
-
     // Step 1: Extract vocabulary
-    yield { type: "status", message: "Extracting vocabulary..." };
+    yield { type: "status", message: "正在提取词汇..." };
     yield { type: "progress", percent: 10 };
 
     const prompt = buildVocabPrompt(input.content, this.config);
@@ -65,7 +61,7 @@ export class VocabFlashcardAgent implements DigestAgent {
       } catch (err) {
         yield {
           type: "error",
-          error: `Vocabulary extraction failed: ${err}`,
+          error: `词汇提取失败：${err}`,
           recoverable: false,
         };
         return;
@@ -75,7 +71,7 @@ export class VocabFlashcardAgent implements DigestAgent {
     yield { type: "progress", percent: 60 };
     yield {
       type: "status",
-      message: `Found ${words.length} vocabulary words`,
+      message: `发现 ${words.length} 个词汇`,
     };
 
     // Step 2: Generate flashcards
@@ -111,7 +107,5 @@ export class VocabFlashcardAgent implements DigestAgent {
 
       yield { type: "progress", percent: 60 + ((i + 1) / total) * 40 };
     }
-
-    this.runtime.log.info(`Generated ${total} flashcards`);
   }
 }

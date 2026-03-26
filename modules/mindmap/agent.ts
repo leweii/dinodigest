@@ -12,7 +12,7 @@ export class MindMapAgent implements DigestAgent {
   constructor(private runtime: AgentRuntime) {}
 
   async *digest(input: ContentInput): AsyncGenerator<DigestEvent> {
-    yield { type: "status", message: "Building mind map..." };
+    yield { type: "status", message: "正在构建思维导图..." };
     yield { type: "progress", percent: 10 };
 
     const prompt = buildMindMapPrompt(
@@ -29,7 +29,7 @@ export class MindMapAgent implements DigestAgent {
     } catch (err) {
       yield {
         type: "error",
-        error: `Mind map generation failed: ${err}`,
+        error: `思维导图生成失败：${err}`,
         recoverable: false,
       };
       return;
@@ -52,7 +52,7 @@ export class MindMapAgent implements DigestAgent {
 
     yield {
       type: "status",
-      message: `Generated mind map with ${totalNodes} nodes`,
+      message: `已生成包含 ${totalNodes} 个节点的思维导图`,
     };
 
     yield {
@@ -64,6 +64,5 @@ export class MindMapAgent implements DigestAgent {
     };
 
     yield { type: "progress", percent: 100 };
-    this.runtime.log.info(`Mind map generated: ${totalNodes} nodes`);
   }
 }

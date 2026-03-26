@@ -10,13 +10,13 @@ export async function POST(request: Request) {
 
     // Validate URL
     if (!url || typeof url !== "string") {
-      return NextResponse.json({ error: "URL is required" }, { status: 400 });
+      return NextResponse.json({ error: "请提供链接" }, { status: 400 });
     }
 
     try {
       new URL(url);
     } catch {
-      return NextResponse.json({ error: "Invalid URL" }, { status: 400 });
+      return NextResponse.json({ error: "链接格式无效" }, { status: 400 });
     }
 
     // Get or create device
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("[API /ingest] Error:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "服务器内部错误" },
       { status: 500 },
     );
   }

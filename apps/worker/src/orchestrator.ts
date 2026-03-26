@@ -53,7 +53,7 @@ export class DigestOrchestrator {
 
     try {
       // 2. Fetch and extract content
-      this.emit(articleId, { type: "status", message: "Extracting content..." });
+      this.emit(articleId, { type: "status", message: "正在提取内容..." });
 
       const content = await fetchAndExtract(article.sourceUrl);
 
@@ -90,7 +90,7 @@ export class DigestOrchestrator {
       const applicable = this.registry.findApplicable(input);
       this.emit(articleId, {
         type: "status",
-        message: `${applicable.length} digestive enzyme(s) starting...`,
+        message: `${applicable.length} 个消化酶开始工作...`,
       });
 
       if (applicable.length === 0) {
@@ -113,22 +113,15 @@ export class DigestOrchestrator {
           console.error("");
           this.emit(articleId, {
             type: "error",
-            error: `Module "${applicable[i].manifest.name}" failed: ${err}`,
+            error: `模块「${applicable[i].manifest.name}」失败：${err}`,
             recoverable: true,
             moduleId: applicable[i].manifest.id,
             moduleName: applicable[i].manifest.name,
           });
         } else {
           succeeded++;
-          console.log(
-            `[Orchestrator] ✅ Module "${applicable[i].manifest.id}" completed`,
-          );
         }
       }
-
-      console.log(
-        `[Orchestrator] Finished: ${succeeded}/${applicable.length} modules succeeded`,
-      );
 
       // 7. Done
       await this.db
@@ -138,7 +131,7 @@ export class DigestOrchestrator {
 
       this.emit(articleId, {
         type: "status",
-        message: "Digestion complete!",
+        message: "消化完成！",
       });
     } catch (error) {
       // Pipeline-level failure
@@ -149,7 +142,7 @@ export class DigestOrchestrator {
 
       this.emit(articleId, {
         type: "error",
-        error: `Pipeline failed: ${error}`,
+        error: `处理流程失败：${error}`,
         recoverable: false,
       });
 
@@ -173,13 +166,12 @@ export class DigestOrchestrator {
 
     this.emit(articleId, {
       type: "status",
-      message: `${moduleName} analyzing...`,
+      message: `${moduleName} 分析中...`,
       moduleId,
       moduleName,
     });
 
     // Iterate through agent events
-    let resultCount = 0;
     for await (const event of agent.digest(input)) {
       // Forward event with module context
       this.emit(articleId, { ...event, moduleId, moduleName });
@@ -200,8 +192,6 @@ export class DigestOrchestrator {
             kind: output.kind,
             data: output.data,
           });
-          resultCount++;
-          console.log(`[${moduleId}] Saved ${output.kind} to database`);
         } catch (dbErr) {
           console.error(`[${moduleId}] Failed to save ${output.kind} to database:`, dbErr);
         }
@@ -229,8 +219,6 @@ export class DigestOrchestrator {
         }
       }
     }
-
-    console.log(`[${moduleId}] Agent finished, ${resultCount} result(s) saved`);
   }
 
   /**
@@ -271,9 +259,5 @@ export class DigestOrchestrator {
    */
   private emit(articleId: string, event: OrchestrationEvent): void {
     this.events.emit(`digest:${articleId}`, event);
-    // Also log for debugging
-    if (event.type === "status") {
-      console.log(`[Orchestrator:${articleId.slice(0, 8)}] ${event.message}`);
-    }
   }
 }

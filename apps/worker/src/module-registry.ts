@@ -15,9 +15,6 @@ export class ModuleRegistry {
       );
     }
     this.modules.set(mod.manifest.id, mod);
-    console.log(
-      `[ModuleRegistry] Registered: ${mod.manifest.id} (${mod.manifest.name})`,
-    );
   }
 
   /** Get a module by ID */

@@ -183,24 +183,37 @@ export default function HomePage() {
 
       {/* How it works — hidden during animation */}
       <div
-        className={`mt-16 grid grid-cols-3 gap-6 text-center transition-opacity duration-500 ${
+        className={`mt-16 transition-opacity duration-500 ${
           isActive ? "opacity-0" : "opacity-100"
         }`}
       >
-        <div>
-          <div className="text-2xl mb-2">1</div>
-          <p className="text-sm text-gray-600 font-medium">粘贴链接</p>
-          <p className="text-xs text-gray-400 mt-1">任何博客或技术文章</p>
-        </div>
-        <div>
-          <div className="text-2xl mb-2">2</div>
-          <p className="text-sm text-gray-600 font-medium">恐龙咀嚼</p>
-          <p className="text-xs text-gray-400 mt-1">AI 把内容拆解成易消化的知识</p>
-        </div>
-        <div>
-          <div className="text-2xl mb-2">3</div>
-          <p className="text-sm text-gray-600 font-medium">你来吸收</p>
-          <p className="text-xs text-gray-400 mt-1">摘要、闪卡、知识点、测验</p>
+        <p className="text-xs text-gray-400 text-center mb-4 tracking-widest">使用方法</p>
+        <div className="grid grid-cols-3 gap-4">
+          {/* Step 1 */}
+          <div className="relative bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-gray-300 transition-all">
+            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-900 text-white text-xs font-bold mb-3">1</span>
+            <p className="text-sm text-gray-800 font-semibold">粘贴链接</p>
+            <p className="text-xs text-gray-400 mt-1.5 leading-relaxed">任何博客或技术文章</p>
+          </div>
+
+          {/* Step 2 */}
+          <div className="relative bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-gray-300 transition-all">
+            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-900 text-white text-xs font-bold mb-3">2</span>
+            <p className="text-sm text-gray-800 font-semibold">恐龙咀嚼</p>
+            <p className="text-xs text-gray-400 mt-1.5 leading-relaxed">AI 把内容拆解成易消化的知识</p>
+          </div>
+
+          {/* Step 3 */}
+          <div className="relative bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-gray-300 transition-all">
+            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-900 text-white text-xs font-bold mb-3">3</span>
+            <p className="text-sm text-gray-800 font-semibold">你来吸收</p>
+            <div className="flex flex-wrap gap-1.5 mt-2.5">
+              <span className="inline-block px-2 py-0.5 text-[11px] font-medium rounded-md bg-emerald-50 text-emerald-600 border border-emerald-100">摘要</span>
+              <span className="inline-block px-2 py-0.5 text-[11px] font-medium rounded-md bg-blue-50 text-blue-600 border border-blue-100">闪卡</span>
+              <span className="inline-block px-2 py-0.5 text-[11px] font-medium rounded-md bg-amber-50 text-amber-600 border border-amber-100">知识点</span>
+              <span className="inline-block px-2 py-0.5 text-[11px] font-medium rounded-md bg-purple-50 text-purple-600 border border-purple-100">测验</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

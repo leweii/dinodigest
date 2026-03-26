@@ -12,7 +12,7 @@ export class QuizAgent implements DigestAgent {
   constructor(private runtime: AgentRuntime) {}
 
   async *digest(input: ContentInput): AsyncGenerator<DigestEvent> {
-    yield { type: "status", message: "Generating quiz questions..." };
+    yield { type: "status", message: "正在生成测验题..." };
     yield { type: "progress", percent: 10 };
 
     const prompt = buildQuizPrompt(
@@ -38,7 +38,7 @@ export class QuizAgent implements DigestAgent {
       } catch (err) {
         yield {
           type: "error",
-          error: `Quiz generation failed: ${err}`,
+          error: `测验生成失败：${err}`,
           recoverable: false,
         };
         return;
@@ -48,7 +48,7 @@ export class QuizAgent implements DigestAgent {
     yield { type: "progress", percent: 70 };
     yield {
       type: "status",
-      message: `Generated ${questions.length} quiz questions`,
+      message: `已生成 ${questions.length} 道测验题`,
     };
 
     const total = questions.length;
@@ -70,7 +70,5 @@ export class QuizAgent implements DigestAgent {
 
       yield { type: "progress", percent: 70 + ((i + 1) / total) * 30 };
     }
-
-    this.runtime.log.info(`Generated ${total} quiz questions`);
   }
 }

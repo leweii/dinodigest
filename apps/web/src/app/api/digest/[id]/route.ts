@@ -15,7 +15,7 @@ export async function GET(
   });
 
   if (!article) {
-    return NextResponse.json({ error: "Article not found" }, { status: 404 });
+    return NextResponse.json({ error: "文章未找到" }, { status: 404 });
   }
 
   const digestResults = await db.query.digests.findMany({

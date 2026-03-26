@@ -12,7 +12,7 @@ export class KeyPointsAgent implements DigestAgent {
   constructor(private runtime: AgentRuntime) {}
 
   async *digest(input: ContentInput): AsyncGenerator<DigestEvent> {
-    yield { type: "status", message: "Extracting key concepts..." };
+    yield { type: "status", message: "正在提取核心概念..." };
     yield { type: "progress", percent: 10 };
 
     const prompt = buildKeyPointsPrompt(
@@ -38,7 +38,7 @@ export class KeyPointsAgent implements DigestAgent {
       } catch (err) {
         yield {
           type: "error",
-          error: `Key points extraction failed: ${err}`,
+          error: `知识点提取失败：${err}`,
           recoverable: false,
         };
         return;
@@ -48,7 +48,7 @@ export class KeyPointsAgent implements DigestAgent {
     yield { type: "progress", percent: 60 };
     yield {
       type: "status",
-      message: `Found ${keyPoints.length} key concepts`,
+      message: `发现 ${keyPoints.length} 个核心概念`,
     };
 
     // Emit each key point as a separate result
@@ -71,7 +71,5 @@ export class KeyPointsAgent implements DigestAgent {
 
       yield { type: "progress", percent: 60 + ((i + 1) / total) * 40 };
     }
-
-    this.runtime.log.info(`Extracted ${total} key points`);
   }
 }

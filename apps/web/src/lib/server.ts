@@ -15,8 +15,10 @@ export function getDB() {
 let _redis: IORedis | null = null;
 function getRedis() {
   if (!_redis) {
-    _redis = new IORedis(process.env.REDIS_URL ?? "redis://localhost:6379", {
+    const redisUrl = process.env.REDIS_URL ?? "redis://localhost:6379";
+    _redis = new IORedis(redisUrl, {
       maxRetriesPerRequest: null,
+      ...(redisUrl.startsWith("rediss://") && { tls: {} }),
     });
   }
   return _redis;

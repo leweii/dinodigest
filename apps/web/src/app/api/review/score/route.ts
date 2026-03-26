@@ -11,7 +11,7 @@ export async function POST(request: Request) {
 
     if (!cardId || quality === undefined || quality < 0 || quality > 5) {
       return NextResponse.json(
-        { error: "cardId and quality (0-5) are required" },
+        { error: "需要提供 cardId 和 quality (0-5)" },
         { status: 400 },
       );
     }
@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     });
 
     if (!card) {
-      return NextResponse.json({ error: "Card not found" }, { status: 404 });
+      return NextResponse.json({ error: "闪卡未找到" }, { status: 404 });
     }
 
     // Calculate next review using SM-2
@@ -48,7 +48,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("[API /review/score] Error:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "服务器内部错误" },
       { status: 500 },
     );
   }

@@ -12,7 +12,7 @@ export class SummaryAgent implements DigestAgent {
 
   async *digest(input: ContentInput): AsyncGenerator<DigestEvent> {
     // Step 1: Status update
-    yield { type: "status", message: "Generating summary..." };
+    yield { type: "status", message: "正在生成摘要..." };
     yield { type: "progress", percent: 10 };
 
     // Step 2: Call LLM for structured summary
@@ -30,7 +30,7 @@ export class SummaryAgent implements DigestAgent {
     } catch (err) {
       yield {
         type: "error",
-        error: `Summary generation failed: ${err}`,
+        error: `摘要生成失败：${err}`,
         recoverable: false,
       };
       return;
@@ -52,6 +52,5 @@ export class SummaryAgent implements DigestAgent {
     };
 
     yield { type: "progress", percent: 100 };
-    this.runtime.log.info("Summary generated successfully");
   }
 }

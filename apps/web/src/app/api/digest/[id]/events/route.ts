@@ -44,7 +44,7 @@ export async function GET(
           });
 
           if (!article) {
-            send({ type: "error", error: "Article not found", recoverable: false });
+            send({ type: "error", error: "文章未找到", recoverable: false });
             clearInterval(interval);
             controller.close();
             closed = true;
@@ -55,10 +55,10 @@ export async function GET(
             lastStatus = article.status;
 
             if (article.status === "processing") {
-              send({ type: "status", message: "Digesting..." });
+              send({ type: "status", message: "正在消化中..." });
               send({ type: "progress", percent: 30 });
             } else if (article.status === "done") {
-              send({ type: "status", message: "Digestion complete!" });
+              send({ type: "status", message: "消化完成！" });
               send({ type: "progress", percent: 100 });
               clearInterval(interval);
               setTimeout(() => {
@@ -68,7 +68,7 @@ export async function GET(
                 }
               }, 500);
             } else if (article.status === "failed") {
-              send({ type: "error", error: "Digestion failed", recoverable: true });
+              send({ type: "error", error: "消化失败", recoverable: true });
               clearInterval(interval);
               controller.close();
               closed = true;
@@ -80,7 +80,7 @@ export async function GET(
       }, 1000);
 
       // Initial event
-      send({ type: "status", message: "Starting digestion..." });
+      send({ type: "status", message: "开始消化..." });
       send({ type: "progress", percent: 10 });
 
       // Cleanup on client disconnect

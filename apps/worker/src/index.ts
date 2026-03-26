@@ -19,11 +19,8 @@ const DATABASE_URL =
 const QUEUE_NAME = "digest";
 
 async function main() {
-  console.log("[DinoDigest Worker] Starting...");
-
   // 1. Initialize database
   const db = createDB(DATABASE_URL);
-  console.log("[DinoDigest Worker] Database connected");
 
   // 2. Initialize LLM client
   // When using API key mode, clear GOOGLE_APPLICATION_CREDENTIALS
@@ -40,10 +37,6 @@ async function main() {
           location: process.env.GOOGLE_CLOUD_LOCATION ?? "us-central1",
         },
   );
-  console.log(
-    `[DinoDigest Worker] LLM client initialized (${apiKey ? "API key" : "Vertex AI"})`,
-  );
-
   // 3. Register modules
   const registry = new ModuleRegistry();
   registry.register(summaryModule);
@@ -58,13 +51,13 @@ async function main() {
   // 5. Start BullMQ worker
   const connection = new IORedis(REDIS_URL, {
     maxRetriesPerRequest: null,
+    ...(REDIS_URL.startsWith("rediss://") && { tls: {} }),
   });
 
   const worker = new Worker(
     QUEUE_NAME,
     async (job) => {
       const { articleId } = job.data as { articleId: string };
-      console.log(`[DinoDigest Worker] Processing article: ${articleId}`);
       await orchestrator.orchestrate(articleId);
     },
     {
@@ -73,24 +66,16 @@ async function main() {
     },
   );
 
-  worker.on("completed", (job) => {
-    console.log(`[DinoDigest Worker] Job ${job.id} completed`);
-  });
-
   worker.on("failed", (job, err) => {
     console.error(`[DinoDigest Worker] Job ${job?.id} failed:`, err.message);
   });
 
   worker.on("ready", () => {
-    console.log("[DinoDigest Worker] Ready and listening for jobs");
-    console.log(
-      `[DinoDigest Worker] Registered modules: ${registry.getAll().map((m) => m.manifest.id).join(", ")}`,
-    );
+    console.log("[DinoDigest Worker] Ready");
   });
 
   // Graceful shutdown
   const shutdown = async () => {
-    console.log("[DinoDigest Worker] Shutting down...");
     await worker.close();
     await connection.quit();
     process.exit(0);

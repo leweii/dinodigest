@@ -22,7 +22,7 @@ export async function GET() {
   } catch (error) {
     console.error("[API /review/due] Error:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "服务器内部错误" },
       { status: 500 },
     );
   }

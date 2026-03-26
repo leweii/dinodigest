@@ -34,7 +34,7 @@ export function useDigestEvents(articleId: string) {
 
         if (
           event.type === "status" &&
-          event.message === "Digestion complete!"
+          event.message === "消化完成！"
         ) {
           setStatus("done");
           source.close();

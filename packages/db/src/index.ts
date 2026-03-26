@@ -14,7 +14,10 @@ export function createDB(databaseUrl?: string) {
     throw new Error("DATABASE_URL environment variable is required");
   }
 
-  const client = postgres(url);
+  const client = postgres(url, {
+    prepare: false,
+    ssl: "require",
+  });
   const db = drizzle(client, { schema });
 
   return db;
