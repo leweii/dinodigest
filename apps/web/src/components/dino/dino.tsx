@@ -26,7 +26,7 @@ export function Dino({
         viewBox="0 0 200 220"
         width={size}
         height={(size * 220) / 200}
-        className="select-none overflow-visible"
+        className={`select-none overflow-visible ${state === "chewing" ? "animate-body-sway" : ""}`}
         role="img"
         aria-label="DinoDigest mascot"
       >
@@ -47,6 +47,7 @@ export function Dino({
           fill="#6BB344"
           stroke="#3d6b28"
           strokeWidth="2"
+          className={state === "chewing" ? "animate-belly-bounce" : ""}
         />
 
         {/* ===== BELLY — lighter area ===== */}
@@ -54,6 +55,7 @@ export function Dino({
           cx="100" cy="155" rx="28" ry="35"
           fill="#95D06B"
           stroke="none"
+          className={state === "chewing" ? "animate-belly-bounce" : ""}
         />
 
         {/* ===== LEGS ===== */}
