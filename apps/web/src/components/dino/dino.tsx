@@ -58,50 +58,138 @@ export function Dino({
           className={state === "chewing" ? "animate-belly-bounce" : ""}
         />
 
-        {/* ===== LEGS ===== */}
-        {/* Left leg */}
+        {/* ===== LEGS with dinosaur clawed feet ===== */}
+
+        {/* Left leg — thick thigh tapering to foot */}
         <path
-          d="M 70 190 L 65 210 Q 62 215, 55 215 L 50 215"
+          d="M 68 185 Q 63 195, 60 205 Q 58 212, 55 215"
           fill="none"
           stroke="#3d6b28"
-          strokeWidth="5"
+          strokeWidth="8"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
-        <ellipse cx="55" cy="215" rx="12" ry="5" fill="#6BB344" stroke="#3d6b28" strokeWidth="2" />
+        {/* Left foot — 3-toed dinosaur claw */}
+        <g>
+          {/* Foot base */}
+          <path
+            d="M 45 213 Q 55 210, 65 213"
+            fill="#6BB344"
+            stroke="#3d6b28"
+            strokeWidth="2"
+            strokeLinejoin="round"
+          />
+          {/* Toe 1 — left */}
+          <path
+            d="M 45 213 L 38 217 L 36 213"
+            fill="#6BB344"
+            stroke="#3d6b28"
+            strokeWidth="1.5"
+            strokeLinejoin="round"
+          />
+          {/* Claw 1 */}
+          <path d="M 36 213 L 34 210" fill="none" stroke="#3d6b28" strokeWidth="1.5" strokeLinecap="round" />
+          {/* Toe 2 — center */}
+          <path
+            d="M 52 213 L 50 219 L 47 215"
+            fill="#6BB344"
+            stroke="#3d6b28"
+            strokeWidth="1.5"
+            strokeLinejoin="round"
+          />
+          {/* Claw 2 */}
+          <path d="M 47 215 L 45 212" fill="none" stroke="#3d6b28" strokeWidth="1.5" strokeLinecap="round" />
+          {/* Toe 3 — right */}
+          <path
+            d="M 62 213 L 65 218 L 62 214"
+            fill="#6BB344"
+            stroke="#3d6b28"
+            strokeWidth="1.5"
+            strokeLinejoin="round"
+          />
+          {/* Claw 3 */}
+          <path d="M 62 214 L 60 211" fill="none" stroke="#3d6b28" strokeWidth="1.5" strokeLinecap="round" />
+        </g>
 
         {/* Right leg */}
         <path
-          d="M 115 190 L 120 210 Q 123 215, 130 215 L 135 215"
+          d="M 118 185 Q 123 195, 125 205 Q 127 212, 130 215"
           fill="none"
           stroke="#3d6b28"
-          strokeWidth="5"
+          strokeWidth="8"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
-        <ellipse cx="130" cy="215" rx="12" ry="5" fill="#6BB344" stroke="#3d6b28" strokeWidth="2" />
+        {/* Right foot — 3-toed dinosaur claw */}
+        <g>
+          {/* Foot base */}
+          <path
+            d="M 120 213 Q 130 210, 142 213"
+            fill="#6BB344"
+            stroke="#3d6b28"
+            strokeWidth="2"
+            strokeLinejoin="round"
+          />
+          {/* Toe 1 */}
+          <path
+            d="M 120 213 L 115 218 L 113 214"
+            fill="#6BB344"
+            stroke="#3d6b28"
+            strokeWidth="1.5"
+            strokeLinejoin="round"
+          />
+          <path d="M 113 214 L 111 211" fill="none" stroke="#3d6b28" strokeWidth="1.5" strokeLinecap="round" />
+          {/* Toe 2 */}
+          <path
+            d="M 129 213 L 128 219 L 125 215"
+            fill="#6BB344"
+            stroke="#3d6b28"
+            strokeWidth="1.5"
+            strokeLinejoin="round"
+          />
+          <path d="M 125 215 L 123 212" fill="none" stroke="#3d6b28" strokeWidth="1.5" strokeLinecap="round" />
+          {/* Toe 3 */}
+          <path
+            d="M 139 213 L 143 218 L 141 214"
+            fill="#6BB344"
+            stroke="#3d6b28"
+            strokeWidth="1.5"
+            strokeLinejoin="round"
+          />
+          <path d="M 141 214 L 139 211" fill="none" stroke="#3d6b28" strokeWidth="1.5" strokeLinecap="round" />
+        </g>
 
-        {/* ===== ARMS — tiny, cute ===== */}
+        {/* ===== ARMS with tiny clawed hands ===== */}
+
         {/* Left arm */}
-        <path
-          d="M 52 128 Q 35 120, 30 130 Q 28 135, 32 138"
-          fill="none"
-          stroke="#3d6b28"
-          strokeWidth="4"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className={state === "chewing" ? "animate-arm-grab" : ""}
-        />
+        <g className={state === "chewing" ? "animate-arm-grab" : ""}>
+          <path
+            d="M 52 125 Q 38 118, 32 126 Q 29 132, 33 136"
+            fill="#6BB344"
+            stroke="#3d6b28"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          {/* Left hand claws — 2 tiny curved claws */}
+          <path d="M 33 136 L 28 138 L 27 134" fill="none" stroke="#3d6b28" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M 33 136 L 32 141 L 29 139" fill="none" stroke="#3d6b28" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </g>
 
         {/* Right arm */}
-        <path
-          d="M 138 128 Q 155 120, 160 130 Q 162 135, 158 138"
-          fill="none"
-          stroke="#3d6b28"
-          strokeWidth="4"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
+        <g>
+          <path
+            d="M 138 125 Q 152 118, 158 126 Q 161 132, 157 136"
+            fill="#6BB344"
+            stroke="#3d6b28"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          {/* Right hand claws */}
+          <path d="M 157 136 L 162 138 L 163 134" fill="none" stroke="#3d6b28" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M 157 136 L 158 141 L 161 139" fill="none" stroke="#3d6b28" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </g>
 
         {/* ===== HEAD — big, round, tilted slightly up ===== */}
         <ellipse
