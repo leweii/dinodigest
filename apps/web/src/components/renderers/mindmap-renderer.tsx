@@ -121,13 +121,13 @@ export function MindMapRenderer({ data }: { data: Record<string, unknown> }) {
     // Fit into view
     const scaleX = rect.width / contentW;
     const scaleY = rect.height / contentH;
-    const fitZoom = Math.min(scaleX, scaleY, 1); // don't zoom in past 1x
+    const fitZoom = Math.max(0.4, Math.min(scaleX, scaleY, 1)); // don't shrink below 40%
     const scaledW = contentW * fitZoom;
     const scaledH = contentH * fitZoom;
     setZoom(fitZoom);
     setPan({
       x: (rect.width - scaledW) / 2,
-      y: (rect.height - scaledH) / 2,
+      y: Math.max(8, (rect.height - scaledH) / 2),
     });
   }, [layout]);
 
@@ -217,11 +217,11 @@ export function MindMapRenderer({ data }: { data: Record<string, unknown> }) {
     const contentH = layout.totalH + 48;
     const scaleX = rect.width / contentW;
     const scaleY = rect.height / contentH;
-    const fitZoom = Math.min(scaleX, scaleY, 1);
+    const fitZoom = Math.max(0.4, Math.min(scaleX, scaleY, 1));
     const scaledW = contentW * fitZoom;
     const scaledH = contentH * fitZoom;
     setZoom(fitZoom);
-    setPan({ x: (rect.width - scaledW) / 2, y: (rect.height - scaledH) / 2 });
+    setPan({ x: (rect.width - scaledW) / 2, y: Math.max(8, (rect.height - scaledH) / 2) });
   };
 
   const nodeKey = (n: LNode) => `${n.depth}:${n.x.toFixed(1)}:${n.data.name}`;
@@ -231,7 +231,7 @@ export function MindMapRenderer({ data }: { data: Record<string, unknown> }) {
   const svgH = layout.totalH + M * 2;
 
   return (
-    <div className="relative w-full" style={{ height: Math.min(svgH * zoom + 80, 600) }}>
+    <div className="relative w-[calc(100vw-2rem)] max-w-[1400px] -translate-x-[calc((100vw-2rem-100%)/2)]" style={{ height: "min(85vh, 900px)" }}>
       {/* Canvas — drag & zoom area */}
       <div
         ref={containerRef}

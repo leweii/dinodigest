@@ -127,7 +127,7 @@ export default function DigestPage({ params }: { params: Promise<{ id: string }>
     }
 
     return (
-      <div className="max-w-3xl mx-auto px-4 py-8">
+      <div className="max-w-5xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-start gap-3 mb-6">
           <Dino state="happy" size={60} />

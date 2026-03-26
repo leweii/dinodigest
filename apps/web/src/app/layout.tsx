@@ -29,18 +29,18 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-[var(--background)] text-[var(--foreground)]">
-        <header className="border-b border-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+        <header className="border-b border-gray-100 bg-white/70 backdrop-blur-md sticky top-0 z-50">
           <nav className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
-            <Link href="/" className="text-lg font-bold text-green-700 hover:text-green-800 transition-colors">
+            <Link href="/" className="text-lg font-bold text-green-700 hover:text-green-800 transition-colors tracking-tight">
               乔治恐龙
             </Link>
-            <div className="flex gap-4 text-sm">
-            <Link href="/history" className="text-gray-600 hover:text-gray-900 transition-colors">
-              历史
-            </Link>
-            <Link href="/review" className="text-gray-600 hover:text-gray-900 transition-colors">
-              复习
-            </Link>
+            <div className="flex gap-5 text-sm font-medium">
+              <Link href="/history" className="text-gray-400 hover:text-gray-700 transition-colors">
+                历史
+              </Link>
+              <Link href="/review" className="text-gray-400 hover:text-gray-700 transition-colors">
+                复习
+              </Link>
             </div>
           </nav>
         </header>
