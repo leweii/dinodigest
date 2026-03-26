@@ -11,10 +11,40 @@ export interface GeminiClientConfig {
   location?: string;
   /** Model name, defaults to gemini-2.0-flash */
   model?: string;
+  /** Max concurrent LLM requests (default 2, avoids 429 on free tier) */
+  maxConcurrency?: number;
 }
 
 /**
- * Create a Gemini LLM client.
+ * Simple semaphore to limit concurrent API calls.
+ * Prevents 429 rate limit errors when modules run in parallel.
+ */
+class Semaphore {
+  private queue: (() => void)[] = [];
+  private running = 0;
+
+  constructor(private max: number) {}
+
+  async acquire(): Promise<void> {
+    if (this.running < this.max) {
+      this.running++;
+      return;
+    }
+    return new Promise<void>((resolve) => this.queue.push(resolve));
+  }
+
+  release(): void {
+    this.running--;
+    const next = this.queue.shift();
+    if (next) {
+      this.running++;
+      next();
+    }
+  }
+}
+
+/**
+ * Create a Gemini LLM client with built-in concurrency control.
  *
  * Supports two authentication modes:
  * 1. API key (from Google AI Studio) — set GEMINI_API_KEY
@@ -48,71 +78,90 @@ export function createGeminiClient(config: GeminiClientConfig): LLMClient {
   }
 
   const modelName = config.model ?? process.env.GEMINI_MODEL ?? "gemini-2.0-flash";
-  console.log(`[LLM] Using model: ${modelName}, mode: ${config.apiKey ? "API key" : "Vertex AI"}`);
+  const semaphore = new Semaphore(config.maxConcurrency ?? 2);
+
+  console.log(
+    `[LLM] Using model: ${modelName}, mode: ${config.apiKey ? "API key" : "Vertex AI"}, concurrency: ${config.maxConcurrency ?? 2}`,
+  );
 
   return {
     async generate(prompt: string): Promise<string> {
-      const response = await ai.models.generateContent({
-        model: modelName,
-        contents: prompt,
-      });
+      await semaphore.acquire();
+      try {
+        const response = await ai.models.generateContent({
+          model: modelName,
+          contents: prompt,
+        });
 
-      const text = response.text;
-      if (!text) {
-        throw new Error("Empty response from Gemini");
+        const text = response.text;
+        if (!text) {
+          throw new Error("Empty response from Gemini");
+        }
+        return text;
+      } finally {
+        semaphore.release();
       }
-      return text;
     },
 
     async generateStructured<T>(
       prompt: string,
       schema: z.ZodSchema<T>,
     ): Promise<T> {
-      const jsonPrompt = `${prompt}
+      await semaphore.acquire();
+      try {
+        const jsonPrompt = `${prompt}
 
 IMPORTANT: Respond ONLY with valid JSON. No markdown, no code fences, no explanation — just the JSON object.`;
 
-      const response = await ai.models.generateContent({
-        model: modelName,
-        contents: jsonPrompt,
-        config: {
-          responseMimeType: "application/json",
-        },
-      });
+        const response = await ai.models.generateContent({
+          model: modelName,
+          contents: jsonPrompt,
+          config: {
+            responseMimeType: "application/json",
+          },
+        });
 
-      const text = response.text;
-      if (!text) {
-        throw new Error("Empty response from Gemini (structured)");
-      }
+        const text = response.text;
+        if (!text) {
+          throw new Error("Empty response from Gemini (structured)");
+        }
 
-      // Clean up response — strip markdown fences if present
-      let cleaned = text.trim();
-      if (cleaned.startsWith("```json")) {
-        cleaned = cleaned.slice(7);
-      } else if (cleaned.startsWith("```")) {
-        cleaned = cleaned.slice(3);
-      }
-      if (cleaned.endsWith("```")) {
-        cleaned = cleaned.slice(0, -3);
-      }
-      cleaned = cleaned.trim();
+        // Clean up response — strip markdown fences if present
+        let cleaned = text.trim();
+        if (cleaned.startsWith("```json")) {
+          cleaned = cleaned.slice(7);
+        } else if (cleaned.startsWith("```")) {
+          cleaned = cleaned.slice(3);
+        }
+        if (cleaned.endsWith("```")) {
+          cleaned = cleaned.slice(0, -3);
+        }
+        cleaned = cleaned.trim();
 
-      const parsed = JSON.parse(cleaned);
-      return schema.parse(parsed);
+        const parsed = JSON.parse(cleaned);
+        return schema.parse(parsed);
+      } finally {
+        semaphore.release();
+      }
     },
 
     async *generateStream(
       prompt: string,
     ): AsyncGenerator<string, void, unknown> {
-      const response = await ai.models.generateContentStream({
-        model: modelName,
-        contents: prompt,
-      });
+      await semaphore.acquire();
+      try {
+        const response = await ai.models.generateContentStream({
+          model: modelName,
+          contents: prompt,
+        });
 
-      for await (const chunk of response) {
-        if (chunk.text) {
-          yield chunk.text;
+        for await (const chunk of response) {
+          if (chunk.text) {
+            yield chunk.text;
+          }
         }
+      } finally {
+        semaphore.release();
       }
     },
   };

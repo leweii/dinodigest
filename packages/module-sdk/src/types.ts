@@ -8,7 +8,7 @@ import type { z } from "zod";
 export type ContentType = "article" | "paper" | "documentation" | "code";
 
 /** Supported output kinds that modules can produce */
-export type OutputKind = "summary" | "key_point" | "flashcard" | "quiz";
+export type OutputKind = "summary" | "key_point" | "flashcard" | "quiz" | "mind_map";
 
 // ============================================================
 // Module Manifest — declares what a module is and can do
@@ -250,8 +250,19 @@ export interface QuizOutput {
   };
 }
 
+export interface MindMapNode {
+  name: string;
+  children?: MindMapNode[];
+}
+
+export interface MindMapOutput {
+  kind: "mind_map";
+  data: MindMapNode;
+}
+
 export type DigestOutput =
   | SummaryOutput
   | KeyPointOutput
   | FlashcardOutput
-  | QuizOutput;
+  | QuizOutput
+  | MindMapOutput;

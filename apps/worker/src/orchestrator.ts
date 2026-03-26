@@ -97,28 +97,32 @@ export class DigestOrchestrator {
         console.warn(`[Orchestrator] No applicable modules for article ${articleId}`);
       }
 
-      // 6. Run agents sequentially to avoid API rate limits
+      // 6. Run all agents in parallel (LLM client has built-in concurrency limiter)
+      const results = await Promise.allSettled(
+        applicable.map((mod) => this.runAgent(articleId, mod, input)),
+      );
+
       let succeeded = 0;
-      for (const mod of applicable) {
-        try {
-          await this.runAgent(articleId, mod, input);
-          succeeded++;
-          console.log(
-            `[Orchestrator] ✅ Module "${mod.manifest.id}" completed`,
-          );
-        } catch (err) {
+      for (let i = 0; i < results.length; i++) {
+        if (results[i].status === "rejected") {
+          const err = (results[i] as PromiseRejectedResult).reason;
           console.error(
-            `\n[Orchestrator] ❌ Module "${mod.manifest.id}" FAILED:`,
+            `\n[Orchestrator] ❌ Module "${applicable[i].manifest.id}" FAILED:`,
           );
           console.error(err);
           console.error("");
           this.emit(articleId, {
             type: "error",
-            error: `Module "${mod.manifest.name}" failed: ${err}`,
+            error: `Module "${applicable[i].manifest.name}" failed: ${err}`,
             recoverable: true,
-            moduleId: mod.manifest.id,
-            moduleName: mod.manifest.name,
+            moduleId: applicable[i].manifest.id,
+            moduleName: applicable[i].manifest.name,
           });
+        } else {
+          succeeded++;
+          console.log(
+            `[Orchestrator] ✅ Module "${applicable[i].manifest.id}" completed`,
+          );
         }
       }
 

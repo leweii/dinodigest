@@ -10,6 +10,7 @@ import summaryModule from "@dinodigest/module-summary";
 import keyPointsModule from "@dinodigest/module-key-points";
 import vocabFlashcardModule from "@dinodigest/module-vocab-flashcard";
 import quizModule from "@dinodigest/module-quiz";
+import mindmapModule from "@dinodigest/module-mindmap";
 
 const REDIS_URL = process.env.REDIS_URL ?? "redis://localhost:6379";
 const DATABASE_URL =
@@ -49,6 +50,7 @@ async function main() {
   registry.register(keyPointsModule);
   registry.register(vocabFlashcardModule);
   registry.register(quizModule);
+  registry.register(mindmapModule);
 
   // 4. Create orchestrator
   const orchestrator = new DigestOrchestrator(registry, llm, db);

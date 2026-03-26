@@ -7,7 +7,8 @@
       "@dinodigest/module-summary": ["../../modules/summary/index.ts"],
       "@dinodigest/module-key-points": ["../../modules/key-points/index.ts"],
       "@dinodigest/module-vocab-flashcard": ["../../modules/vocab-flashcard/index.ts"],
-      "@dinodigest/module-quiz": ["../../modules/quiz/index.ts"]
+      "@dinodigest/module-quiz": ["../../modules/quiz/index.ts"],
+      "@dinodigest/module-mindmap": ["../../modules/mindmap/index.ts"]
     }
   },
   "include": ["src", "../../modules/*/index.ts"]

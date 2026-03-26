@@ -32,4 +32,6 @@ export type {
   KeyPointOutput,
   FlashcardOutput,
   QuizOutput,
+  MindMapOutput,
+  MindMapNode,
 } from "./types.js";

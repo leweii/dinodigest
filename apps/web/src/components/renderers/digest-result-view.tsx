@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { SummaryRenderer } from "./summary-renderer";
 import { KeyPointRenderer } from "./key-point-renderer";
+import { MindMapRenderer } from "./mindmap-renderer";
 
 interface DigestData {
   id: string;
@@ -14,6 +15,7 @@ interface DigestData {
 const TABS = [
   { kind: "summary", label: "Summary" },
   { kind: "key_point", label: "Key Points" },
+  { kind: "mind_map", label: "Mind Map" },
   { kind: "flashcard", label: "Flashcards" },
   { kind: "quiz", label: "Quiz" },
 ] as const;
@@ -78,6 +80,8 @@ function DigestOutputRenderer({
       return <SummaryRenderer data={data} />;
     case "key_point":
       return <KeyPointRenderer data={data} />;
+    case "mind_map":
+      return <MindMapRenderer data={data} />;
     case "flashcard":
       return <FlashcardPreview data={data} />;
     case "quiz":
