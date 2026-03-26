@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DinoDigest — 喂饱你的大脑",
-  description: "粘贴一个链接，让恐龙把它消化成你能吸收的知识。",
+  title: "乔治恐龙 — 喂饱你的大脑",
+  description: "粘贴一个链接，让乔治恐龙把它消化成你能吸收的知识。",
 };
 
 export default function RootLayout({
@@ -32,7 +32,7 @@ export default function RootLayout({
         <header className="border-b border-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50">
           <nav className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
             <Link href="/" className="text-lg font-bold text-green-700 hover:text-green-800 transition-colors">
-              DinoDigest
+              乔治恐龙
             </Link>
             <div className="flex gap-4 text-sm">
             <Link href="/history" className="text-gray-600 hover:text-gray-900 transition-colors">

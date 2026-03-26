@@ -81,7 +81,7 @@ export default function HomePage() {
     <div className="max-w-3xl mx-auto px-4 pt-10 pb-16">
       <div className="flex flex-col items-center">
         <h1 className="text-3xl font-bold text-gray-900 mb-1 text-center">
-          DinoDigest
+          乔治恐龙
         </h1>
         <p className="text-gray-400 text-sm mb-10 text-center">
           投喂任何内容，收获满满知识。

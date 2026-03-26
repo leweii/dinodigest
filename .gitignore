@@ -36,3 +36,4 @@ packages/db/drizzle/
 # Misc
 *.log
 coverage/
+.vercel
