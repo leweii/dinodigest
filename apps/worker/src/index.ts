@@ -72,13 +72,13 @@ async function main() {
     QUEUE_NAME,
     async (job) => {
       const { articleId } = job.data as { articleId: string };
-      await orchestrator.orchestrate(articleId);
+      await orchestrator.orchestrate(articleId, job);
     },
     {
       connection,
       concurrency: 3,
-      lockDuration: 120_000,
-      stalledInterval: 60_000,
+      lockDuration: 300_000,
+      stalledInterval: 120_000,
     },
   );
 

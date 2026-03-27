@@ -1,5 +1,6 @@
 import { EventEmitter } from "node:events";
 import { eq } from "drizzle-orm";
+import type { Job } from "bullmq";
 import type {
   AgentRuntime,
   ContentInput,
@@ -35,7 +36,7 @@ export class DigestOrchestrator {
   /**
    * Run the full digestion pipeline for an article.
    */
-  async orchestrate(articleId: string): Promise<void> {
+  async orchestrate(articleId: string, job?: Job): Promise<void> {
     // 1. Get article from DB
     const article = await this.db.query.articles.findFirst({
       where: eq(articles.id, articleId),
@@ -54,6 +55,7 @@ export class DigestOrchestrator {
     try {
       // 2. Fetch and extract content
       this.emit(articleId, { type: "status", message: "正在提取内容..." });
+      await job?.updateProgress(10);
 
       const content = await fetchAndExtract(article.sourceUrl);
 
@@ -92,14 +94,18 @@ export class DigestOrchestrator {
         type: "status",
         message: `${applicable.length} 个消化酶开始工作...`,
       });
+      await job?.updateProgress(20);
 
       if (applicable.length === 0) {
         console.warn(`[Orchestrator] No applicable modules for article ${articleId}`);
       }
 
       // 6. Run all agents in parallel (LLM client has built-in concurrency limiter)
+      const completedModules = { count: 0 };
       const results = await Promise.allSettled(
-        applicable.map((mod) => this.runAgent(articleId, mod, input)),
+        applicable.map((mod) =>
+          this.runAgent(articleId, mod, input, job, completedModules, applicable.length),
+        ),
       );
 
       let succeeded = 0;
@@ -157,6 +163,9 @@ export class DigestOrchestrator {
     articleId: string,
     mod: DigestModule,
     input: ContentInput,
+    job?: Job,
+    completedModules?: { count: number },
+    totalModules?: number,
   ): Promise<void> {
     const { id: moduleId, name: moduleName } = mod.manifest;
 
@@ -218,6 +227,13 @@ export class DigestOrchestrator {
           }
         }
       }
+    }
+
+    // Report progress to extend BullMQ lock
+    if (completedModules && totalModules) {
+      completedModules.count++;
+      const progress = 20 + Math.round((completedModules.count / totalModules) * 70);
+      await job?.updateProgress(progress);
     }
   }
 
