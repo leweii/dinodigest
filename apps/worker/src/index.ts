@@ -77,6 +77,8 @@ async function main() {
     {
       connection,
       concurrency: 3,
+      lockDuration: 120_000,
+      stalledInterval: 60_000,
     },
   );
 
